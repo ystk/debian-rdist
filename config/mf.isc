@@ -1,0 +1,31 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: mf.isc,v 1.2 1998/11/10 03:52:48 mcooper Exp $
+#
+
+#
+# ISC Makefile
+#
+CC = gcc -posix
+
+#
+# Functions that are missing in this OS are contained in the
+# files specified in ${MISSINGOBJS}.
+#
+#MISSINGOBJS 	= $(O)strerror.o $(O)strcasecmp.o
+MISSINGOBJS 	= $(O)regex.o
+
+#
+# System libraries that we need to load.
+#
+LIB_SYS	= -linet
+
+#
+# System dependent options for compiling
+#
+CFLAGS_OS	= -D_SYSV3 -O -m486

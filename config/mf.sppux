@@ -1,0 +1,50 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: mf.sppux,v 1.2 1998/11/10 03:55:40 mcooper Exp $
+#
+
+#
+# Convex SPP-UX Makefile
+#
+
+#
+# Functions that are missing in this OS are contained in the
+# files specified in ${MISSINGOBJS}.
+#
+MISSINGOBJS 	= $(O)strcasecmp.o $(O)regex.o
+
+#
+# The /bin/cc distributed by default with HPUX doesn't 
+# support `-g'.
+#
+OPT		=
+
+#
+# Everthing goes in /usr/bin
+#
+BIN_DIR		= /usr/bin
+
+#
+# The HP-UX /etc/install is not the BSD-style install program.
+#
+INSTALL		= ../support/bsdinst.sh
+
+#
+# System libraries that we need to load.
+#
+#LIB_SYS		= -lPW
+
+#
+# C Flags
+#
+CFLAGS_OS	= -or none
+
+#
+# C Compiler
+#
+CC		= /usr/convex/bin/cc

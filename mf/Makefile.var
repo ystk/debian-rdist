@@ -1,0 +1,254 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: Makefile.var,v 6.43 1998/11/10 05:02:11 mcooper Exp $
+#
+
+#
+# Makefile default variables.
+#
+
+# 			**** DO NOT MODIFY THIS FILE ****
+#
+# Put local overrides for things found in this file in "Makefile.local".
+#
+
+#
+# BIN_DIR	- Name of directory to install client and server programs
+# BIN_OWNER	- Name of user who owns normal bin files
+# BIN_GROUP	- Name of group who owns normal bin files
+# RDIST_MODE	- File mode of rdist (client) program
+# RDISTD_MODE	- File mode of rdistd (server) program
+#
+BIN_DIR		= /usr/ucb
+BIN_OWNER	= root
+BIN_GROUP	= bin
+RDIST_MODE	= 555
+RDISTD_MODE	= 555
+
+#
+# MANDIR	- Name of top level manual directory
+# MAN_1_SECT	- Name of section 1 manual files
+# MAN_8_SECT	- Name of section 8 manual files
+# MAN_OWNER	- Name of user who owns man pages
+# MAN_GROUP	- Name of group who owns man pages
+# MAN_MODE	- File mode for man pages
+#
+MAN_1_DIR	= /usr/man/man1
+MAN_8_DIR	= /usr/man/man8
+MAN_1_SECT	= 1
+MAN_8_SECT	= 8
+MAN_OWNER	= root
+MAN_GROUP	= bin
+MAN_MODE	= 444
+
+
+#
+# CLIENT	- Name of client program (rdist) in ${BIN}
+# SERVER	- Name of server program (rdistd) in ${BIN}
+#
+CLIENT		= rdist
+SERVER		= rdistd
+
+#
+# Name of your BSD style install program
+#
+INSTALL		= install
+
+#
+# Name of C compiler.
+#
+#CC 		= gcc
+
+#
+# Name of YACC.
+#
+#YACC 		= bison -y
+
+OPT		= -g
+RM		= rm
+AR		= ar
+RANLIB		= ranlib
+
+O		=
+
+CFLAGS		= ${OPT}
+YFLAGS		= -d
+
+MAKE		= make
+MAKE_OPT	=
+
+CLEANFILES	= *~ a.out core rcsdiff.out log errs y.tab.h y.tab.c o
+
+#
+# Files that are part of the official distribution
+#
+
+Sources	= \
+	src/Makefile \
+	src/Makefile.real \
+	src/child.c \
+	src/client.c \
+	src/common.c \
+	src/distopt.c \
+	src/docmd.c \
+	src/expand.c \
+	src/filesys-os.c \
+	src/filesys.c \
+	src/gram.y \
+	src/isexec.c \
+	src/lookup.c \
+	src/message.c \
+	src/rdist.c \
+	src/rdistd.c \
+	src/rshrcmd.c \
+	src/server.c \
+	src/setargs.c \
+	src/signal.c
+
+MissingSources = \
+	src/hasmntopt.c \
+	src/regex.c \
+	src/strcasecmp.c \
+	src/strdup.c \
+	src/strerror.c \
+	src/strtol.c \
+	src/vsprintf.c
+
+ConfigFiles = \
+	config/Makefile \
+	config/Makefile.real \
+	config/mf.TEMPLATE \
+	config/mf.aix3 \
+	config/mf.aix4 \
+	config/mf.bsdi \
+	config/mf.bsdi2 \
+	config/mf.concen \
+	config/mf.cxux \
+	config/mf.dcosx \
+	config/mf.dgux \
+	config/mf.dynix \
+	config/mf.dynixptx \
+	config/mf.fpx4 \
+	config/mf.freebsd2 \
+	config/mf.ftx \
+	config/mf.hpux9 \
+	config/mf.hpux10 \
+	config/mf.irix4 \
+	config/mf.irix5 \
+	config/mf.irix6 \
+	config/mf.isc \
+	config/mf.linux \
+	config/mf.mipsos4 \
+	config/mf.mipsos5 \
+	config/mf.ncr \
+	config/mf.nextstep2 \
+	config/mf.nextstep3 \
+	config/mf.osf1 \
+	config/mf.pyrosx \
+	config/mf.sppux \
+	config/mf.stellix \
+	config/mf.sunos4 \
+	config/mf.sunos5 \
+	config/mf.svr4 \
+	config/mf.tracebsd \
+	config/mf.ultrix4 \
+	config/mf.unicos \
+	config/mf.xinu43
+
+ConfigFilesSRC = \
+	config/config-data.h \
+	config/config-def.h \
+	config/config.h \
+	config/os-TEMPLATE.h \
+	config/os-aix3.h \
+	config/os-aix4.h \
+	config/os-bsdi.h \
+	config/os-bsdi2.h \
+	config/os-concen.h \
+	config/os-cxux.h \
+	config/os-dcosx.h \
+	config/os-dgux.h \
+	config/os-dynix.h \
+	config/os-dynixptx.h \
+	config/os-fpx4.h \
+	config/os-freebsd2.h \
+	config/os-ftx.h \
+	config/os-hpux9.h \
+	config/os-hpux10.h \
+	config/os-irix4.h \
+	config/os-irix5.h \
+	config/os-irix6.h \
+	config/os-isc.h \
+	config/os-linux.h \
+	config/os-mipsos4.h \
+	config/os-mipsos5.h \
+	config/os-ncr.h \
+	config/os-nextstep2.h \
+	config/os-nextstep3.h \
+	config/os-osf1.h \
+	config/os-pyrosx.h \
+	config/os-sppux.h \
+	config/os-stellix.h \
+	config/os-sunos4.h \
+	config/os-sunos5.h \
+	config/os-svr4.h \
+	config/os-tracebsd.h \
+	config/os-ultrix4.h \
+	config/os-unicos.h \
+	config/os-xinu43.h
+
+IncludeFiles = \
+	include/Makefile \
+	include/Makefile.real \
+	include/defs.h \
+	include/filesys.h \
+	include/pathnames.h \
+	include/rdistpaths.h \
+	include/types.h \
+	include/version.h
+
+DocFiles = \
+	doc/Makefile \
+	doc/Makefile.real \
+	doc/rdist.man \
+	doc/rdistd.man
+
+SupportFiles = \
+	support/Makefile \
+	support/Makefile.real \
+	support/bsdinst.sh \
+	support/rdistcf.pl \
+	support/rdistvf.pl
+
+BuildFiles = \
+	build/buildinfo \
+	build/vername \
+	build/runmake \
+	build/os-type
+
+DistFiles = \
+	dist/Makefile \
+	dist/Makefile.var \
+	dist/Makefile.real
+
+MfFiles = \
+	mf/Makefile \
+	mf/Makefile.base \
+	mf/Makefile.var
+
+MainFiles = \
+	README Copyright ChangeLog Makefile Makefile.local
+
+SRCDistFiles = \
+	${MainFiles} ${Sources} ${ConfigFiles} ${ConfigFilesSRC} \
+	${IncludeFiles} ${DocFiles} ${DistFiles} \
+	${MissingSources} ${SupportFiles} ${MfFiles} ${BuildFiles}
+
+BinDistFiles = \
+	${MainFiles} ${ConfigFiles} ${DocFiles} \
+	${SupportFiles} ${MfFiles} ${BuildFiles} src/Makefile src/Makefile.real

@@ -1,0 +1,29 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: mf.ncr,v 1.1 1998/11/10 03:53:59 mcooper Exp $
+#
+
+#
+# ncr Makefile
+#
+
+#
+# Functions that are missing in this OS are contained in the
+# files specified in ${MISSINGOBJS}.
+#
+MISSINGOBJS 	= $(O)strcasecmp.o $(O)regex.o $(O)strtol.o $(O)hasmntopt.o
+
+#
+# System libraries that we need to load.
+#
+LIB_SYS		= -lnsl -lsocket -lc /usr/ucblib/libucb.a
+
+#
+# No ranlib
+#
+RANLIB		=

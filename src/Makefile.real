@@ -1,0 +1,60 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: Makefile.real,v 1.12 1998/11/10 04:03:46 mcooper Exp $
+#
+
+IN_ARGS		= -c -g ${BIN_GROUP}
+
+HFILES		= ../config/config.h ../config/config-data.h \
+			../config/config-def.h ../config/os-$(OS).h \
+			../include/defs.h ../include/filesys.h \
+			../include/pathnames.h ../include/rdistpaths.h \
+			../include/version.h
+COMMONOBJS	= $(O)common.o $(O)message.o $(O)setargs.o
+CLIENTOBJS 	= $(O)gram.o $(O)rdist.o $(O)client.o $(O)child.o $(O)docmd.o \
+			$(O)distopt.o $(O)expand.o $(O)lookup.o \
+			$(O)isexec.o $(O)signal.o $(O)rshrcmd.o
+SERVEROBJS	= $(O)rdistd.o $(O)server.o $(O)filesys.o $(O)filesys-os.o
+
+OS_H		= os-$(OS).h
+DEFS		= -DOS_H=\"$(OS_H)\" $(DEFS_SYS) $(DEFS_LOCAL)
+LIBS		= $(LIB_SYS) $(LIBS_LOCAL)
+CFLAGS		= $(OPT) $(DEFS) $(INCLUDE) $(CFLAGS_OS)
+
+INCLUDE		= -I. -I../include -I../config $(OTHERINCS) $(INCLUDE_SYS)
+
+CLIENT_BIN	= $(O)$(CLIENT)
+SERVER_BIN	= $(O)$(SERVER)
+
+all: src
+
+src: $(CLIENT_BIN) $(SERVER_BIN)
+
+$(SERVER_BIN): $(SERVEROBJS) $(COMMONOBJS) $(MISSINGOBJS)
+	$(CC) -o $@ $(SERVEROBJS) $(COMMONOBJS) $(MISSINGOBJS) $(LIBS)
+
+$(CLIENT_BIN): $(CLIENTOBJS) $(COMMONOBJS) $(MISSINGOBJS)
+	$(CC) -o $@ $(CLIENTOBJS) $(COMMONOBJS) $(MISSINGOBJS) $(LIBS)
+
+$(CLIENTOBJS) $(SERVEROBJS): $(HFILES) y.tab.h
+
+y.tab.h: gram.c
+
+clean:
+	rm -f ${CLEANFILES} gram.c *.o \
+		$(CLIENT_BIN) $(SERVER_BIN) \
+		$(CLIENTOBJS) $(SERVEROBJS) \
+		$(COMMONOBJS) $(MISSINGOBJS)
+
+install:
+	$(INSTALL) ${IN_ARGS} -o $(BIN_OWNER) -m ${RDIST_MODE} \
+		$(CLIENT_BIN) $(BIN_DIR)/$(CLIENT)
+	$(INSTALL) ${IN_ARGS} -o ${BIN_OWNER} -m ${RDISTD_MODE} \
+		$(SERVER_BIN) $(BIN_DIR)/$(SERVER)
+
+install.man:

@@ -1,0 +1,19 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: mf.sunos4,v 6.3 1998/11/10 03:56:08 mcooper Exp $
+#
+
+#
+# SunOS 4.x Makefile
+#
+
+#
+# Functions that are missing in this OS are contained in the
+# files specified in ${MISSINGOBJS}.
+#
+MISSINGOBJS 	= $(O)strerror.o $(O)strcasecmp.o

@@ -1,0 +1,26 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: Makefile.real,v 1.2 1998/11/10 05:40:06 mcooper Exp $
+#
+
+CLIENT_DEST 	= ${MAN_1_DIR}/${CLIENT}.${MAN_1_SECT}
+SERVER_DEST 	= ${MAN_8_DIR}/${SERVER}.${MAN_8_SECT}
+INSTALL_ARGS	= -c -o ${MAN_OWNER} -g ${MAN_GROUP} -m ${MAN_MODE} 
+
+all:
+
+doc:
+
+install:
+
+install.man: rdist.man rdistd.man
+	${INSTALL} ${INSTALL_ARGS} rdist.man ${CLIENT_DEST}
+	${INSTALL} ${INSTALL_ARGS} rdistd.man ${SERVER_DEST}
+
+clean:
+	rm -f ${CLEANFILES}

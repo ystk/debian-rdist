@@ -1,0 +1,101 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: Makefile.real,v 1.5 1998/11/10 04:01:39 mcooper Exp mcooper $
+#
+
+FTPDIR		= /var/spool/ftp/pub/rdist
+CLIENTBASE 	= rdist
+SERVERBASE 	= rdistd
+CLIENT		= $(O)$(CLIENTBASE)
+SERVER		= $(O)$(SERVERBASE)
+
+VERCMD		= ../build/vername ../src/$(CLIENT) -V
+PLATFORMCMD	= ../build/buildinfo -platform
+
+all dist: srcdist
+
+rcsdiff:
+	(cd ..; rcsdiff $(SRCDistFiles)) > rcsdiff.out 2>&1
+
+bindist:
+	sysver=`$(VERCMD)`; \
+	platform=`$(PLATFORMCMD)`; \
+	vername=`../build/buildinfo -distname -disttype bin -prodver $$sysver`; \
+	rm -f $$vername; \
+	ln -s .. $$vername; \
+	if [ ! -z "$(O)" ]; then \
+		rm -f $$vername/src/$(CLIENTBASE) $$vername/src/$(SERVERBASE); \
+		(cd $$vername/src && ln -s $(CLIENT) && ln -s $(SERVER) ); \
+	fi; \
+	filelist=filelist.tmp; \
+	rm -f $$filelist; \
+	touch $$filelist; \
+	chmod 664 $$filelist; \
+	for f in $(BinDistFiles) src/$(CLIENTBASE) src/$(SERVERBASE) ; do \
+		echo $$vername/$${f} >> $$filelist; \
+	done; \
+	tar chf - `cat $$filelist` | gzip --best > \
+		$(DistDir)/$$vername.tar.gz; \
+	rm -f $$vername/src/$(CLIENTBASE) $$vername/src/$(SERVERBASE) $$vername; \
+	echo DIST File is $(DistDir)/$$vername.tar.gz
+
+
+srcdist: ../src/$(CLIENT)
+	vername=`$(VERCMD)`; \
+	filelist=filelist.tmp; \
+	rm -f $$filelist; \
+	touch $$filelist; \
+	chmod 664 $$filelist; \
+	for f in $(SRCDistFiles); do \
+		echo $$vername/$${f} >> $$filelist; \
+	done; \
+	rm -f $$vername; \
+	ln -s .. $$vername; \
+	tar chf - `cat $$filelist` | gzip --best > \
+		$(DistDir)/$$vername.tar.gz; \
+	rm -f $$vername; \
+	echo DIST File is $(DistDir)/$$vername.tar.gz
+
+shardist: ../$(CLIENT)
+	vername=`$(VERCMD)`; \
+	filelist=filelist.tmp; \
+	rm -f $$filelist; \
+	touch $$filelist; \
+	chmod 664 $$filelist; \
+	for f in $(SRCDistFiles); do \
+		echo $$vername/$${f} >> $$filelist; \
+	done; \
+	rm -f $$vername; \
+	ln -s .. $$vername; \
+	shar `cat $$filelist` | gzip --best > \
+		$(DistDir)/$$vername.shar.gz
+
+install.ftp: tardist
+	@if [ ! -d $(FTPDIR) ]; then \
+		echo "No ftp directory \"$(FTPDIR)\""; \
+		exit 1; \
+	fi; \
+	vername=`$(VERCMD)`; \
+	baseoutfile=$$vername.tar.gz; \
+	outfile="$(DistDir)/$$baseoutfile"; \
+	set -x; \
+	rm -f $(FTPDIR)/$${outfile} && \
+	cp ../README ../ChangeLog $(FTPDIR) && \
+	cp $${outfile} $(FTPDIR) && \
+	cd $(FTPDIR) && \
+	rm -f rdist.tar.gz && \
+	ln -s $${baseoutfile} rdist.tar.gz
+
+../$(CLIENT):
+	(cd ../src && $(MAKE) $(MAKE_OPT))
+
+../$(SERVER):
+	(cd ../src && $(MAKE) $(MAKE_OPT))
+
+clean:
+	rm -f filelist.tmp *~ a.out core

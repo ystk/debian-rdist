@@ -1,0 +1,50 @@
+#
+# Copyright (c) 1992-1998 Michael A. Cooper.  
+# This software may be freely used and distributed provided it is not
+# sold for profit or used in part or in whole for commercial gain
+# without prior written agreement, and the author is credited
+# appropriately.
+#
+# $Id: mf.sunos5,v 6.6 1998/11/10 03:56:23 mcooper Exp $
+#
+
+#
+# SunOS 5.x Makefile
+#
+
+#
+# Functions that are missing in this OS are contained in the
+# files specified in ${MISSINGOBJS}.
+#
+MISSINGOBJS 	= $(O)regex.o
+
+#
+# System libraries that we need to load.
+#
+LIB_SYS		= -lnsl -lsocket
+
+#
+# No ranlib
+#
+RANLIB		=
+
+#
+# Enable POSIX
+#
+#DEFS_SYS	= -D_POSIX_SOURCE
+
+#
+# Install directory
+#
+BIN_DIR		= /usr/bin
+
+#
+# Use the BSD install
+#
+INSTALL		= /usr/ucb/install
+
+#
+# Set correct values for admin section of man pages.
+#
+MAN_8_SECT	= 1m
+MAN_8_DIR	= /usr/man/man${MAN_8_SECT}
