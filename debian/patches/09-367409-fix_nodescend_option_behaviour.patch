@@ -1,0 +1,50 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=367409
+
+The nodescend options is described in the rdist manpage as:
+ nodescend
+   Do  not  descend  into  a  directory.  Normally rdist will recursively check
+   directories.  If this option is enabled, then any files listed in  the  file
+   list in the distfile that are directories are not recursively scanned.  Only
+   the existence, ownership, and mode of the directory are checked.
+
+Given this description I expected that if I had a distfile like this:
+
+/tmp/DIR1/ -> ( localhost )
+        install -onodescend /tmp/rdist/DIR1 ;
+
+rdist would create a directory /tmp/rdist/DIR1 with the same permissions as
+/tmp/DIR1 but would not copy files from /tmp/DIR1 into the new directory.
+
+This was not the case. AFAICS this is a real issue because in the alpha 
+version 7.0 of rdist at http://www.magnicomp.com/ this problem is fixed.
+
+Kornilios Kourtis <kkourt@cslab.ece.ntua.gr>
+
+--- a/src/client.c	1998-11-10 15:08:47.000000000 +1100
++++ b/src/client.c	2009-07-02 20:05:46.000000000 +1000
+@@ -578,12 +578,6 @@ static int senddir(rname, opts, stb, use
+ 	int len;
+ 	int didupdate = 0;
+ 
+-	/*
+-	 * Don't descend into directory
+-	 */
+-	if (IS_ON(opts, DO_NODESCEND))
+-		return(0);
+-
+ 	if ((d = opendir(target)) == NULL) {
+ 		error("%s: opendir failed: %s", target, SYSERR);
+ 		return(-1);
+@@ -597,6 +591,12 @@ static int senddir(rname, opts, stb, use
+ 	if (response() < 0)
+ 		return(-1);
+ 
++	/*
++	 * Don't descend into directory
++	 */
++	if (IS_ON(opts, DO_NODESCEND))
++		return(0);
++
+ 	if (IS_ON(opts, DO_REMOVE))
+ 		if (rmchk(opts) > 0)
+ 			++didupdate;

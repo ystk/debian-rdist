@@ -1,0 +1,51 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=250965
+
+rdisting a symlink doesn't quite work.
+
+This may be related to the following bugzilla report for RedHat:
+https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=123833
+
+Herbert Xu <herbert@gondor.apana.org.au>
+
+--- a/src/server.c	1998-11-10 15:15:31.000000000 +1100
++++ b/src/server.c	2009-07-02 20:05:46.000000000 +1000
+@@ -767,14 +767,12 @@ static void recvfile(new, opts, mode, ow
+ 	/*
+ 	 * Create temporary file
+ 	 */
+-	if ((f = creat(new, mode)) < 0) {
+-		if (errno != ENOENT || chkparent(new, opts) < 0 ||
+-		    (f = creat(new, mode)) < 0) {
+-			error("%s: create failed: %s", new, SYSERR);
+-			(void) unlink(new);
+-			return;
+-		}
++	if (chkparent(new, opts) < 0 || (f = mkstemp(new)) < 0) {
++		error("%s: create failed: %s", new, SYSERR);
++		(void) unlink(new);
++		return;
+ 	}
++	fchmod(f, mode);
+ 
+ 	/*
+ 	 * Receive the file itself
+@@ -1152,9 +1150,10 @@ static void recvlink(new, opts, mode, si
+ 	/*
+ 	 * Make new symlink using a temporary name
+ 	 */
++	mktemp(new);
+ 	if (symlink(buf, new) < 0) {
+ 		if (errno != ENOENT || chkparent(new, opts) < 0 ||
+-		    symlink(buf, new) < 0) {
++		    (mktemp(new), symlink(buf, new) < 0)) {
+ 			error("%s -> %s: symlink failed: %s", new, buf,SYSERR);
+ 			(void) unlink(new);
+ 			return;
+@@ -1477,7 +1476,6 @@ static void recvit(cmd, type)
+ 			(void) sprintf(new, "%s/%s", target, tempname);
+ 			*file = '/';
+ 		}
+-		(void) mktemp(new);
+ 	}
+ 
+ 	/*

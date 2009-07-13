@@ -1,0 +1,148 @@
+Build with bison
+
+Fixed gram.y so that it builds with bison (Akim Demaille).
+
+Herbert Xu <herbert@debian.org>
+
+--- a/src/gram.y	1998-11-10 15:10:42.000000000 +1100
++++ b/src/gram.y	2009-07-02 20:05:46.000000000 +1000
+@@ -90,10 +90,10 @@ int	parendepth = 0;
+ 	struct namelist        *namel;
+ }
+ 
+-%type <optval> OPTION, options
+-%type <string> NAME, STRING
+-%type <subcmd> INSTALL, NOTIFY, EXCEPT, PATTERN, SPECIAL, CMDSPECIAL, cmdlist, cmd
+-%type <namel> namelist, names, opt_namelist nlist
++%type <optval> OPTION options
++%type <string> NAME STRING
++%type <subcmd> INSTALL NOTIFY EXCEPT PATTERN SPECIAL CMDSPECIAL cmdlist cmd
++%type <namel> namelist names opt_namelist nlist
+ 
+ %%
+ 
+@@ -101,19 +101,19 @@ file:		  /* VOID */
+ 		| file command
+ 		;
+ 
+-command:	  NAME '=' namelist = {
++command:	  NAME '=' namelist {
+ 			(void) lookup($1, INSERT, $3);
+ 		}
+-		| namelist ARROW namelist cmdlist = {
++		| namelist ARROW namelist cmdlist {
+ 			insert((char *)NULL, $1, $3, $4);
+ 		}
+-		| NAME COLON namelist ARROW namelist cmdlist = {
++		| NAME COLON namelist ARROW namelist cmdlist {
+ 			insert($1, $3, $5, $6);
+ 		}
+-		| namelist DCOLON NAME cmdlist = {
++		| namelist DCOLON NAME cmdlist {
+ 			append((char *)NULL, $1, $3, $4);
+ 		}
+-		| NAME COLON namelist DCOLON NAME cmdlist = {
++		| NAME COLON namelist DCOLON NAME cmdlist {
+ 			append($1, $3, $5, $6);
+ 		}
+ 		| error
+@@ -133,10 +133,10 @@ namelist: 	nlist { 
+ 		}
+ 		;
+ 
+-nlist:	  NAME = {
++nlist:	  NAME {
+ 			$$ = makenl($1);
+ 		}
+-		| '(' names ')' = {
++		| '(' names ')' {
+ 			$$ = $2;
+ 		}
+ 		;
+@@ -144,7 +144,7 @@ nlist:	  NAME = {
+ names:		  /* VOID */ {
+ 			$$ = last_n = NULL;
+ 		}
+-		| names NAME = {
++		| names NAME {
+ 			if (last_n == NULL)
+ 				$$ = last_n = makenl($2);
+ 			else {
+@@ -158,7 +158,7 @@ names:		  /* VOID */ {
+ cmdlist:	  /* VOID */ {
+ 			$$ = last_sc = NULL;
+ 		}
+-		| cmdlist cmd = {
++		| cmdlist cmd {
+ 			if (last_sc == NULL)
+ 				$$ = last_sc = $2;
+ 			else {
+@@ -169,7 +169,7 @@ cmdlist:	  /* VOID */ {
+ 		}
+ 		;
+ 
+-cmd:		  INSTALL options opt_namelist ';' = {
++cmd:		  INSTALL options opt_namelist ';' {
+ 			register struct namelist *nl;
+ 
+ 			$1->sc_options = $2 | options;
+@@ -185,17 +185,17 @@ cmd:		  INSTALL options opt_namelist ';'
+ 			}
+ 			$$ = $1;
+ 		}
+-		| NOTIFY namelist ';' = {
++		| NOTIFY namelist ';' {
+ 			if ($2 != NULL)
+ 				$1->sc_args = expand($2, E_VARS);
+ 			$$ = $1;
+ 		}
+-		| EXCEPT namelist ';' = {
++		| EXCEPT namelist ';' {
+ 			if ($2 != NULL)
+ 				$1->sc_args = expand($2, E_ALL);
+ 			$$ = $1;
+ 		}
+-		| PATTERN namelist ';' = {
++		| PATTERN namelist ';' {
+ 			struct namelist *nl;
+ 			char *cp, *re_comp();
+ 
+@@ -205,13 +205,13 @@ cmd:		  INSTALL options opt_namelist ';'
+ 			$1->sc_args = expand($2, E_VARS);
+ 			$$ = $1;
+ 		}
+-		| SPECIAL opt_namelist STRING ';' = {
++		| SPECIAL opt_namelist STRING ';' {
+ 			if ($2 != NULL)
+ 				$1->sc_args = expand($2, E_ALL);
+ 			$1->sc_name = $3;
+ 			$$ = $1;
+ 		}
+-		| CMDSPECIAL opt_namelist STRING ';' = {
++		| CMDSPECIAL opt_namelist STRING ';' {
+ 			if ($2 != NULL)
+ 				$1->sc_args = expand($2, E_ALL);
+ 			$1->sc_name = $3;
+@@ -219,18 +219,18 @@ cmd:		  INSTALL options opt_namelist ';'
+ 		}
+ 		;
+ 
+-options:	  /* VOID */ = {
++options:	  /* VOID */ {
+ 			$$ = 0;
+ 		}
+-		| options OPTION = {
++		| options OPTION {
+ 			$$ |= $2;
+ 		}
+ 		;
+ 
+-opt_namelist:	  /* VOID */ = {
++opt_namelist:	  /* VOID */ {
+ 			$$ = NULL;
+ 		}
+-		| namelist = {
++		| namelist {
+ 			$$ = $1;
+ 		}
+ 		;

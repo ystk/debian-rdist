@@ -1,0 +1,2042 @@
+--- a/src/gram.y	2009-07-03 14:18:33.000000000 +1000
++++ b/src/gram.y	2009-07-03 14:54:53.000000000 +1000
+@@ -40,7 +40,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: gram.y,v 6.30 1998/11/10 04:10:42 mcooper Exp $";
+ 
+@@ -170,7 +170,7 @@ cmdlist:	  /* VOID */ {
+ 		;
+ 
+ cmd:		  INSTALL options opt_namelist ';' {
+-			register struct namelist *nl;
++			struct namelist *nl;
+ 
+ 			$1->sc_options = $2 | options;
+ 			if ($3 != NULL) {
+@@ -240,11 +240,11 @@ opt_namelist:	  /* VOID */ {
+ int	yylineno = 1;
+ extern	FILE *fin;
+ 
+-yylex()
++int yylex()
+ {
+ 	static char yytext[INMAX];
+-	register int c;
+-	register char *cp1, *cp2;
++	int c;
++	char *cp1, *cp2;
+ 	static char quotechars[] = "[]{}*?$";
+ 	
+ again:
+@@ -409,8 +409,8 @@ again:
+  * some of the characters we use.
+  */
+ extern int any(c, str)
+-	register int c;
+-	register char *str;
++	int c;
++	char *str;
+ {
+ 	while (*str)
+ 		if (c == *str++)
+@@ -421,13 +421,14 @@ extern int any(c, str)
+ /*
+  * Insert or append ARROW command to list of hosts to be updated.
+  */
++void
+ insert(label, files, hosts, subcmds)
+ 	char *label;
+ 	struct namelist *files, *hosts;
+ 	struct subcmd *subcmds;
+ {
+-	register struct cmd *c, *prev, *nc;
+-	register struct namelist *h, *lasth;
++	struct cmd *c, *prev, *nc;
++	struct namelist *h, *lasth;
+ 
+ 	debugmsg(DM_CALL, "insert(%s, %x, %x, %x) start, files = %s", 
+ 		 label == NULL ? "(null)" : label,
+@@ -475,13 +476,14 @@ insert(label, files, hosts, subcmds)
+  * Append DCOLON command to the end of the command list since these are always
+  * executed in the order they appear in the distfile.
+  */
++void
+ append(label, files, stamp, subcmds)
+ 	char *label;
+ 	struct namelist *files;
+ 	char *stamp;
+ 	struct subcmd *subcmds;
+ {
+-	register struct cmd *c;
++	struct cmd *c;
+ 
+ 	c = ALLOC(cmd);
+ 	c->c_type = DCOLON;
+@@ -501,6 +503,7 @@ append(label, files, stamp, subcmds)
+ /*
+  * Error printing routine in parser.
+  */
++void
+ yyerror(s)
+ 	char *s;
+ {
+@@ -530,7 +533,7 @@ struct namelist *
+ makenl(name)
+ 	char *name;
+ {
+-	register struct namelist *nl;
++	struct namelist *nl;
+ 
+ 	debugmsg(DM_CALL, "makenl(%s)", name == NULL ? "null" : name);
+ 
+@@ -627,7 +630,7 @@ extern struct subcmd *
+ makesubcmd(type)
+ 	int type;
+ {
+-	register struct subcmd *sc;
++	struct subcmd *sc;
+ 
+ 	sc = ALLOC(subcmd);
+ 	sc->sc_type = type;
+--- a/src/rdist.c	1998-11-10 15:13:50.000000000 +1100
++++ b/src/rdist.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: rdist.c,v 6.66 1998/11/10 04:13:49 mcooper Exp $";
+ 
+@@ -80,7 +80,7 @@ static void addhostlist(name, hostlist)
+ 	char *name;
+ 	struct namelist **hostlist;
+ {
+-	register struct namelist *ptr, *new;
++	struct namelist *ptr, *new;
+ 
+ 	if (!name || !hostlist)
+ 		return;
+@@ -97,14 +97,15 @@ static void addhostlist(name, hostlist)
+ 		*hostlist = new;
+ }
+ 
++int
+ main(argc, argv, envp)
+ 	int argc;
+ 	char *argv[];
+ 	char **envp;
+ {
+ 	struct namelist *hostlist = NULL;
+-	register int x;
+-	register char *cp;
++	int x;
++	char *cp;
+ 	int cmdargs = 0;
+ 	int c;
+ 
+@@ -114,7 +115,7 @@ main(argc, argv, envp)
+ 	 */
+ 	setprogname(argv);
+ 
+-	if (cp = msgparseopts(localmsglist, TRUE)) {
++	if ((cp = msgparseopts(localmsglist, TRUE))) {
+ 		error("Bad builtin log option (%s): %s.", 
+ 		      localmsglist, cp);
+ 		usage();
+@@ -158,7 +159,7 @@ main(argc, argv, envp)
+ 	while ((c = getopt(argc, argv, optchars)) != -1)
+ 		switch (c) {
+ 		case 'l':
+-			if (cp = msgparseopts(optarg, TRUE)) {
++			if ((cp = msgparseopts(optarg, TRUE))) {
+ 				error("Bad log option \"%s\": %s.", optarg,cp);
+ 				usage();
+ 			}
+@@ -206,7 +207,7 @@ main(argc, argv, envp)
+ 
+ 		case 'D':
+ 			debug = DM_ALL;
+-			if (cp = msgparseopts("stdout=all,debug", TRUE)) {
++			if ((cp = msgparseopts("stdout=all,debug", TRUE))) {
+ 				error("Enable debug messages failed: %s.", cp);
+ 				usage();
+ 			}
+@@ -245,7 +246,7 @@ main(argc, argv, envp)
+ 				error("No path specified to \"-P\".");
+ 				usage();
+ 			}
+-			if (cp = searchpath(optarg))
++			if ((cp = searchpath(optarg)))
+ 				path_remsh = strdup(cp);
+ 			else {
+ 				error("No component of path \"%s\" exists.",
+@@ -297,7 +298,7 @@ main(argc, argv, envp)
+ 	else {
+ 		if (fin == NULL)
+ 			fin = opendist(distfile);
+-		(void) yyparse();
++		yyparse();
+ 		/*
+ 		 * Need to keep stdin open for child processing later
+ 		 */
+@@ -348,6 +349,7 @@ FILE *opendist(distfile)
+ /*
+  * Print usage message and exit.
+  */
++void
+ usage()
+ {
+ 	char *sopts = "cDFnv";
+@@ -379,12 +381,13 @@ usage()
+ /*
+  * rcp like interface for distributing files.
+  */
++void
+ docmdargs(nargs, args)
+ 	int nargs;
+ 	char *args[];
+ {
+-	register struct namelist *nl, *prev;
+-	register char *cp;
++	struct namelist *nl, *prev;
++	char *cp;
+ 	struct namelist *files, *hosts;
+ 	struct subcmd *cmds;
+ 	char *dest;
+@@ -433,10 +436,10 @@ docmdargs(nargs, args)
+  * Get a list of NAME blocks (mostly for debugging).
+  */
+ extern char *getnlstr(nl)
+-	register struct namelist *nl;
++	struct namelist *nl;
+ {
+ 	static char buf[16384];
+-	register int count = 0, len = 0;
++	int count = 0, len = 0;
+ 
+ 	(void) sprintf(buf, "(");
+ 
+--- a/src/client.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/client.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: client.c,v 6.82 1998/11/10 04:08:47 mcooper Exp $";
+ 
+@@ -84,7 +84,7 @@ char *remfilename(src, dest, path, rname
+ 	int destdir;
+ {
+ 	extern struct namelist *filelist;
+-	register char *lname, *cp;
++	char *lname, *cp;
+ 	static char buff[BUFSIZ];
+ 	int srclen, pathlen;
+ 	char *p;
+@@ -146,7 +146,7 @@ int inlist(list, file)
+ 	struct namelist *list;
+ 	char *file;
+ {
+-	register struct namelist *nl;
++	struct namelist *nl;
+ 
+ 	for (nl = list; nl != NULL; nl = nl->n_next)
+ 		if (strcmp(file, nl->n_name) == 0)
+@@ -163,7 +163,7 @@ static void runspecial(starget, opts, rn
+ 	char *rname;
+ 	int destdir;
+ {
+-	register struct subcmd *sc;
++	struct subcmd *sc;
+ 	extern struct subcmd *subcmds;
+ 	char *rfile;
+ 
+@@ -200,7 +200,7 @@ static void addcmdspecialfile(starget, r
+ {
+ 	char *rfile;
+ 	struct namelist *new;
+-	register struct subcmd *sc;
++	struct subcmd *sc;
+ 	extern struct subcmd *subcmds;
+ 	int isokay = 0;
+ 
+@@ -227,7 +227,7 @@ static void addcmdspecialfile(starget, r
+  */
+ static void freecmdspecialfiles()
+ {
+-	register struct namelist *ptr, *save;
++	struct namelist *ptr, *save;
+ 
+ 	for (ptr = updfilelist; ptr; ) {
+ 		if (ptr->n_name) (void) free(ptr->n_name);
+@@ -249,10 +249,8 @@ extern void runcmdspecial(cmd, filev, op
+ 	char **filev;
+ 	opt_t opts;
+ {
+-	register struct subcmd *sc;
+-	register struct namelist *f;
+-	register char **cpp;
+-	char *file;
++	struct subcmd *sc;
++	struct namelist *f;
+ 	int first = TRUE;
+ 
+ 	for (sc = cmd->c_cmds; sc != NULL; sc = sc->sc_next) {
+@@ -294,7 +292,7 @@ extern void runcmdspecial(cmd, filev, op
+ int checkfilename(name)
+ 	char *name;
+ {
+-	register char *cp;
++	char *cp;
+ 
+ 	if (strchr(name, '\n')) {
+ 		for (cp = name; *cp; cp++)
+@@ -501,7 +499,7 @@ static int sendfile(rname, opts, stb, us
+ static int rmchk(opts)
+ 	opt_t opts;
+ {
+-	register u_char *s;
++	u_char *s;
+ 	struct stat stb;
+ 	int didupdate = 0;
+ 	int n;
+@@ -618,7 +616,7 @@ static int senddir(rname, opts, stb, use
+ 	
+ 	optarget = ptarget;
+ 	len = ptarget - target;
+-	while (dp = readdir(d)) {
++	while ((dp = readdir(d))) {
+ 		if (!strcmp(dp->d_name, ".") ||
+ 		    !strcmp(dp->d_name, ".."))
+ 			continue;
+@@ -631,7 +629,7 @@ static int senddir(rname, opts, stb, use
+ 		if (ptarget[-1] != '/')
+ 			*ptarget++ = '/';
+ 		cp = dp->d_name;
+-		while (*ptarget++ = *cp++)
++		while ((*ptarget++ = *cp++))
+ 			;
+ 		ptarget--;
+ 		if (sendit(dp->d_name, opts, destdir) > 0)
+@@ -770,13 +768,13 @@ static int update(rname, opts, statp)
+ 	opt_t opts;
+ 	struct stat *statp;
+ {
+-	register off_t size;
+-	register time_t mtime;
++	off_t size;
++	time_t mtime;
+ 	unsigned short lmode;
+ 	unsigned short rmode;
+ 	char *owner = NULL, *group = NULL;
+ 	int done, n;
+-	u_char *cp;
++	char *cp;
+ 
+ 	debugmsg(DM_CALL, "update(%s, 0x%x, 0x%x)\n", rname, opts, statp);
+ 
+@@ -1035,7 +1033,6 @@ static int sendit(rname, opts, destdir)
+ 	int destdir;
+ {
+ 	static struct stat stb;
+-	extern struct subcmd *subcmds;
+ 	char *user, *group;
+ 	int u, len;
+ 	int didupdate = 0;
+@@ -1157,7 +1154,7 @@ extern void cleanup()
+ 	(void) unlink(statfile);
+ #endif
+ 
+-	if (file = getnotifyfile())
++	if ((file = getnotifyfile()))
+ 		(void) unlink(file);
+ }
+ 
+--- a/src/child.c	1998-11-10 15:18:57.000000000 +1100
++++ b/src/child.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: child.c,v 6.29 1998/11/10 04:18:56 mcooper Exp $";
+ 
+@@ -90,7 +90,7 @@ static int 		needscan = FALSE;	/* Need t
+ static void removechild(child)
+ 	CHILD *child;
+ {
+-	register CHILD *pc, *prevpc;
++	CHILD *pc, *prevpc;
+ 
+ 	debugmsg(DM_CALL, "removechild(%s, %d, %d) start",
+ 		 child->c_name, child->c_pid, child->c_readfd);
+@@ -148,7 +148,7 @@ static void removechild(child)
+ static CHILD *copychild(child)
+ 	CHILD *child;
+ {
+-	register CHILD *newc;
++	CHILD *newc;
+ 
+ 	newc = (CHILD *) xmalloc(sizeof(CHILD));
+ 
+@@ -167,7 +167,7 @@ static CHILD *copychild(child)
+ static void addchild(child)
+ 	CHILD *child;
+ {
+-	register CHILD *pc;
++	CHILD *pc;
+ 
+ 	debugmsg(DM_CALL, "addchild() start\n");
+ 
+@@ -280,7 +280,7 @@ static int waitproc(statval, block)
+  */
+ static void reap()
+ {
+-	register CHILD *pc;
++	CHILD *pc;
+ 	int status = 0;
+ 	pid_t pid;
+ 
+@@ -336,7 +336,7 @@ static void reap()
+  */
+ static void childscan() 
+ {
+-	register CHILD *pc, *nextpc;
++	CHILD *pc, *nextpc;
+ 	
+ 	debugmsg(DM_CALL, "childscan() start");
+ 
+@@ -366,8 +366,8 @@ static void childscan() 
+ extern void waitup()
+ {
+ #if	defined(HAVE_SELECT)
+-	register int count;
+-	register CHILD *pc;
++	int count;
++	CHILD *pc;
+ 	fd_set rchildfds;
+ 
+ 	debugmsg(DM_CALL, "waitup() start\n");
+--- a/src/docmd.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/docmd.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: docmd.c,v 6.87 1998/11/10 04:08:32 mcooper Exp $";
+ 
+@@ -99,10 +99,10 @@ static void closeconn()
+  */
+ static void notify(rhost, to, lmod)
+ 	char *rhost;
+-	register struct namelist *to;
++	struct namelist *to;
+ 	time_t lmod;
+ {
+-	register int fd, len;
++	int fd, len;
+ 	FILE *pf, *popen();
+ 	struct stat stb;
+ 	static char buf[BUFSIZ];
+@@ -221,7 +221,7 @@ extern void markassigned(cmd, cmdlist)
+ 	struct cmd *cmd;
+ 	struct cmd *cmdlist;
+ {
+-	register struct cmd *pcmd;
++	struct cmd *pcmd;
+ 	
+ 	for (pcmd = cmdlist; pcmd; pcmd = pcmd->c_next) {
+ 		checkcmd(pcmd);
+@@ -238,7 +238,7 @@ static void markfailed(cmd, cmdlist)
+ 	struct cmd *cmd;
+ 	struct cmd *cmdlist;
+ {
+-	register struct cmd *pc;
++	struct cmd *pc;
+ 
+ 	if (!cmd) {
+ 		debugmsg(DM_MISC, "markfailed() NULL cmd parameter");
+@@ -309,7 +309,7 @@ static int remotecmd(rhost, luser, ruser
+ static int makeconn(rhost)
+ 	char *rhost;
+ {
+-	register char *ruser, *cp;
++	char *ruser, *cp;
+ 	static char *cur_host = NULL;
+ 	extern char *locuser;
+ 	extern long min_freefiles, min_freespace;
+@@ -430,9 +430,9 @@ static void doarrow(cmd, filev)
+ 	struct cmd *cmd;
+ 	char **filev;
+ {
+-	register struct namelist *f;
+-	register struct subcmd *sc;
+-	register char **cpp;
++	struct namelist *f;
++	struct subcmd *sc;
++	char **cpp;
+ 	int n, ddir, destdir, opts = options;
+ 	struct namelist *files;
+ 	struct subcmd *sbcmds;
+@@ -567,7 +567,6 @@ static void doarrow(cmd, filev)
+ 		}
+ 	}
+ 
+-done:
+ 	/*
+ 	 * Run any commands for the entire cmd
+ 	 */
+@@ -584,7 +583,7 @@ done:
+ 			notify(rhost, sc->sc_args, (time_t) 0);
+ 
+ 	if (!nflag) {
+-		register struct linkbuf *nextl, *l;
++		struct linkbuf *nextl, *l;
+ 
+ 		for (l = ihead; l != NULL; freelinkinfo(l), l = nextl) {
+ 			nextl = l->nextp;
+@@ -601,11 +600,12 @@ done:
+ 	setjmp_ok = FALSE;
+ }
+ 
++int
+ okname(name)
+-	register char *name;
++	char *name;
+ {
+-	register char *cp = name;
+-	register int c, isbad;
++	char *cp = name;
++	int c, isbad;
+ 
+ 	for (isbad = FALSE; *cp && !isbad; ++cp) {
+ 		c = *cp;
+@@ -627,9 +627,9 @@ static void rcmptime(st, sbcmds, env)
+ 	struct subcmd *sbcmds;
+ 	char **env;
+ {
+-	register DIR *d;
+-	register DIRENTRY *dp;
+-	register char *cp;
++	DIR *d;
++	DIRENTRY *dp;
++	char *cp;
+ 	char *optarget;
+ 	int len;
+ 
+@@ -641,7 +641,7 @@ static void rcmptime(st, sbcmds, env)
+ 	}
+ 	optarget = ptarget;
+ 	len = ptarget - target;
+-	while (dp = readdir(d)) {
++	while ((dp = readdir(d))) {
+ 		if (!strcmp(dp->d_name, ".") || !strcmp(dp->d_name, ".."))
+ 			continue;
+ 		if (len + 1 + (int)strlen(dp->d_name) >= BUFSIZ - 1) {
+@@ -651,7 +651,7 @@ static void rcmptime(st, sbcmds, env)
+ 		ptarget = optarget;
+ 		*ptarget++ = '/';
+ 		cp = dp->d_name;
+-		while (*ptarget++ = *cp++)
++		while ((*ptarget++ = *cp++))
+ 			;
+ 		ptarget--;
+ 		cmptime(target, sbcmds, env);
+@@ -740,9 +740,9 @@ static void dodcolon(cmd, filev)
+ 	struct cmd *cmd;
+ 	char **filev;
+ {
+-	register struct subcmd *sc;
+-	register struct namelist *f;
+-	register char *cp, **cpp;
++	struct subcmd *sc;
++	struct namelist *f;
++	char *cp, **cpp;
+ 	struct stat stb;
+ 	struct namelist *files = cmd->c_files;
+ 	struct subcmd *sbcmds = cmd->c_cmds;
+@@ -824,8 +824,8 @@ static void dodcolon(cmd, filev)
+ extern int except(file)
+ 	char *file;
+ {
+-	register struct	subcmd *sc;
+-	register struct	namelist *nl;
++	struct	subcmd *sc;
++	struct	namelist *nl;
+ 
+ 	debugmsg(DM_CALL, "except(%s)", file);
+ 
+@@ -918,8 +918,8 @@ static void docmd(cmd, argc, argv)
+ 	int argc;
+ 	char **argv;
+ {
+-	register struct namelist *f;
+-	register int i;
++	struct namelist *f;
++	int i;
+ 
+ 	if (argc) {
+ 		for (i = 0; i < argc; i++) {
+@@ -962,9 +962,9 @@ extern void docmds(hostlist, argc, argv)
+ 	int argc;
+ 	char **argv;
+ {
+-	register struct cmd *c;
+-	register char *cp;
+-	register int i;
++	struct cmd *c;
++	char *cp;
++	int i;
+ 
+ 	(void) signal(SIGHUP, sighandler);
+ 	(void) signal(SIGINT, sighandler);
+@@ -1032,7 +1032,7 @@ extern void docmds(hostlist, argc, argv)
+ 
+ 		if (hostlist) {
+ 			/* Do specific hosts as specified on command line */
+-			register struct namelist *nlptr;
++			struct namelist *nlptr;
+ 
+ 			for (nlptr = hostlist; nlptr; nlptr = nlptr->n_next)
+ 				/*
+--- a/src/distopt.c	1998-11-10 15:09:11.000000000 +1100
++++ b/src/distopt.c	2009-07-03 14:54:53.000000000 +1000
+@@ -6,7 +6,7 @@
+  * appropriately.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: distopt.c,v 6.12 1998/11/10 04:09:11 mcooper Exp $";
+ 
+@@ -55,7 +55,7 @@ DISTOPTINFO distoptinfo[] = {
+ extern DISTOPTINFO *getdistopt(name)
+ 	char *name;
+ {
+-	register int i;
++	int i;
+ 
+ 	for (i = 0; distoptinfo[i].do_name; ++i)
+ 		if (strcasecmp(name, distoptinfo[i].do_name) == 0)
+@@ -74,7 +74,7 @@ extern int parsedistopts(str, optptr, do
+ 	opt_t *optptr;
+ 	int doerrs;
+ {
+-	register char *string, *optstr;
++	char *string, *optstr;
+ 	DISTOPTINFO *distopt;
+ 	int negate;
+ 
+@@ -93,7 +93,7 @@ extern int parsedistopts(str, optptr, do
+ 		 * and the option starts with "no", strip "no"
+ 		 * from option and retry lookup.
+ 		 */
+-		if (distopt = getdistopt(optstr)) {
++		if ((distopt = getdistopt(optstr))) {
+ 			FLAG_ON(*optptr, distopt->do_value);
+ 			continue;
+ 		}
+@@ -116,7 +116,7 @@ extern int parsedistopts(str, optptr, do
+  */
+ extern char *getdistoptlist()
+ {
+-	register int i;
++	int i;
+ 	static char buf[1024];
+ 
+ 	for (i = 0, buf[0] = CNULL; distoptinfo[i].do_name; ++i) {
+@@ -138,7 +138,7 @@ extern char *getdistoptlist()
+ extern char *getondistoptlist(opts)
+ 	opt_t opts;
+ {
+-	register int i;
++	int i;
+ 	static char buf[1024];
+ 
+ 	for (i = 0, buf[0] = CNULL; distoptinfo[i].do_name; ++i) {
+--- a/src/expand.c	1998-11-10 15:09:31.000000000 +1100
++++ b/src/expand.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: expand.c,v 6.19 1998/11/10 04:09:31 mcooper Exp $";
+ 
+@@ -81,9 +81,9 @@ void    	matchdir();
+ 		      sizeof(*sortbase), argcmp), sortbase = &eargv[eargc]
+ 
+ static void Cat(s1, s2)				/* quote in s1 and s2 */
+-	register u_char *s1, *s2;
++	u_char *s1, *s2;
+ {
+-	register char *cp;
++	char *cp;
+ 	int len = strlen((char *)s1) + strlen((char *)s2) + 2;
+ 
+ 	if ((eargc + 1) >= MAXEARGS) {
+@@ -97,12 +97,12 @@ static void Cat(s1, s2)				/* quote in s
+ 	do { 
+ 		if (*s1 == QUOTECHAR) 
+ 			s1++; 
+-	} while (*cp++ = *s1++);
++	} while ((*cp++ = *s1++));
+ 	cp--;
+ 	do { 
+ 		if (*s2 == QUOTECHAR) 
+ 			s2++; 
+-	} while (*cp++ = *s2++);
++	} while ((*cp++ = *s2++));
+ }
+ 
+ static void addpath(c)
+@@ -131,8 +131,8 @@ expand(list, wh)				/* quote in list->n_
+ 	struct namelist *list;
+ 	int wh;
+ {
+-	register struct namelist *nl, *prev;
+-	register int n;
++	struct namelist *nl, *prev;
++	int n;
+ 	char pathbuf[BUFSIZ];
+ 
+ 	if (debug)
+@@ -182,7 +182,7 @@ u_char *xstrchr(str, ch)
+ 	u_char *str;
+ 	int ch;
+ {
+-	register u_char *cp;
++	u_char *cp;
+ 
+ 	for (cp = str; cp && *cp != CNULL; ++cp)
+ 		if (ch == *cp)
+@@ -194,8 +194,8 @@ u_char *xstrchr(str, ch)
+ void expstr(s)
+ 	u_char *s;
+ {
+-	register u_char *cp, *cp1;
+-	register struct namelist *tp;
++	u_char *cp, *cp1;
++	struct namelist *tp;
+ 	u_char *tail;
+ 	u_char ebuf[BUFSIZ];
+ 	u_char varbuff[BUFSIZ];
+@@ -302,7 +302,7 @@ void expstr(s)
+ 			cp1 = (u_char *)pw->pw_dir;
+ 			s = cp;
+ 		}
+-		for (cp = (u_char *)path; *cp++ = *cp1++; )
++		for (cp = (u_char *)path; (*cp++ = *cp1++); )
+ 			;
+ 		tpathp = pathp = (char *)cp - 1;
+ 	} else {
+@@ -326,7 +326,7 @@ void expstr(s)
+ 	sort();
+ }
+ 
+-static
++static int
+ argcmp(a1, a2)
+ 	char **a1, **a2;
+ {
+@@ -341,8 +341,8 @@ argcmp(a1, a2)
+ void expsh(s)				/* quote in s */
+ 	u_char *s;
+ {
+-	register u_char *cp, *oldcp;
+-	register char *spathp;
++	u_char *cp, *oldcp;
++	char *spathp;
+ 	struct stat stb;
+ 
+ 	spathp = pathp;
+@@ -380,7 +380,7 @@ void matchdir(pattern)				/* quote in pa
+ 	char *pattern;
+ {
+ 	struct stat stb;
+-	register DIRENTRY *dp;
++	DIRENTRY *dp;
+ 	DIR *dirp;
+ 
+ 	dirp = opendir(path);
+@@ -417,11 +417,12 @@ patherr2:
+ 	yyerror(path);
+ }
+ 
++int
+ execbrc(p, s)				/* quote in p */
+ 	u_char *p, *s;
+ {
+ 	u_char restbuf[BUFSIZ + 2];
+-	register u_char *pe, *pm, *pl;
++	u_char *pe, *pm, *pl;
+ 	int brclev = 0;
+ 	u_char *lm, savec;
+ 	char *spathp;
+@@ -507,11 +508,12 @@ doit:
+ 	return (0);
+ }
+ 
++int
+ match(s, p)					/* quote in p */
+ 	char *s, *p;
+ {
+-	register int c;
+-	register char *sentp;
++	int c;
++	char *sentp;
+ 	char sexpany = expany;
+ 
+ 	if (*s == '.' && *p != '.')
+@@ -524,11 +526,12 @@ match(s, p)					/* quote in p */
+ 	return (c);
+ }
+ 
++int
+ amatch(s, p)					/* quote in p */
+-	register char *s;
+-	register u_char *p;
++	char *s;
++	u_char *p;
+ {
+-	register int scc;
++	int scc;
+ 	int ok, lc;
+ 	char *spathp;
+ 	struct stat stb;
+@@ -545,7 +548,7 @@ amatch(s, p)					/* quote in p */
+ 		case '[':
+ 			ok = 0;
+ 			lc = 077777;
+-			while (cc = *p++) {
++			while ((cc = *p++)) {
+ 				if (cc == ']') {
+ 					if (ok)
+ 						break;
+@@ -599,7 +602,7 @@ slash:
+ 			while (*s)
+ 				addpath(*s++);
+ 			addpath('/');
+-			if (stat(path, &stb) == 0 && S_ISDIR(stb.st_mode))
++			if (stat(path, &stb) == 0 && S_ISDIR(stb.st_mode)) {
+ 				if (*p == CNULL) {
+ 					if (which & E_TILDE)
+ 						Cat((u_char *)path, 
+@@ -609,6 +612,7 @@ slash:
+ 						    (u_char *)tpathp);
+ 				} else
+ 					expsh(p);
++			}
+ 			pathp = spathp;
+ 			*pathp = CNULL;
+ 			return (0);
+--- a/src/lookup.c	1998-11-10 15:12:56.000000000 +1100
++++ b/src/lookup.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: lookup.c,v 6.9 1998/11/10 04:12:56 mcooper Exp $";
+ 
+@@ -68,11 +68,12 @@ static struct syment *hashtab[HASHSIZE];
+ /*
+  * Define a variable from a command line argument.
+  */
++void
+ define(name)
+ 	char *name;
+ {
+-	register char *cp, *s;
+-	register struct namelist *nl;
++	char *cp, *s;
++	struct namelist *nl;
+ 	struct namelist *value;
+ 
+ 	debugmsg(DM_CALL, "define(%s)", name);
+@@ -137,9 +138,9 @@ lookup(name, action, value)	/* %% in nam
+ 	int action;
+ 	struct namelist *value;
+ {
+-	register unsigned n;
+-	register char *cp;
+-	register struct syment *s;
++	unsigned n;
++	char *cp;
++	struct syment *s;
+ 	char ebuf[BUFSIZ];
+ 
+ 	debugmsg(DM_CALL, "lookup(%s, %d, %x)", name, action, value);
+--- a/src/isexec.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/isexec.c	2009-07-03 14:54:53.000000000 +1000
+@@ -37,7 +37,7 @@
+  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  * SUCH DAMAGE.
+  */
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: isexec.c,v 6.22 1998/11/10 04:11:42 mcooper Exp $";
+ 
+--- a/src/signal.c	1998-11-10 15:16:13.000000000 +1100
++++ b/src/signal.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: signal.c,v 6.2 1998/11/10 04:16:13 mcooper Exp $";
+ 
+--- a/src/rshrcmd.c	1998-11-10 15:15:07.000000000 +1100
++++ b/src/rshrcmd.c	2009-07-03 14:54:53.000000000 +1000
+@@ -10,7 +10,7 @@
+  * Chris Siebenmann <cks@utcc.utoronto.ca>.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: rshrcmd.c,v 1.9 1998/11/10 04:15:07 mcooper Exp $";
+ 
+@@ -34,6 +34,7 @@ static char copyright[] = "Copyright (c)
+  * program in place of a direct rcmd() function call so as to
+  * avoid having to be root.
+  */
++int
+ rshrcmd(ahost, port, luser, ruser, cmd, fd2p)
+ 	char  	**ahost;
+ 	u_short	port;
+@@ -108,6 +109,7 @@ rshrcmd(ahost, port, luser, ruser, cmd, 
+ 		(void) wait(0);
+ 		return sp[0];
+ 	}
++	return -1;
+ 	/*NOTREACHED*/
+ }
+ 
+--- a/src/common.c	1998-11-10 15:09:01.000000000 +1100
++++ b/src/common.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: common.c,v 6.84 1998/11/10 04:09:01 mcooper Exp $";
+ 
+@@ -87,14 +87,14 @@ opt_t			options = 0;		/* Global install 
+ /* 
+  * Front end to write() that handles partial write() requests.
+  */
+-extern WRITE_RETURN_T xwrite(fd, buf, len)
++WRITE_RETURN_T xwrite(fd, buf, len)
+ 	int fd;
+ 	void *buf;
+ 	WRITE_AMT_T len;
+ {
+     	WRITE_AMT_T nleft = len;
+ 	WRITE_RETURN_T nwritten;
+-	register char *ptr = buf;
++	char *ptr = buf;
+          
+ 	while (nleft > 0) {
+ 	    	if ((nwritten = write(fd, ptr, nleft)) <= 0) {
+@@ -110,14 +110,14 @@ extern WRITE_RETURN_T xwrite(fd, buf, le
+ /*
+  * Set program name
+  */
+-extern void setprogname(argv)
++void setprogname(argv)
+ 	char **argv;
+ {
+-	register char *cp;
++	char *cp;
+ 
+ 	if (!progname) {
+ 		progname = strdup(argv[0]);
+-		if (cp = strrchr(progname, '/'))
++		if ((cp = strrchr(progname, '/')))
+ 			progname = cp + 1;
+ 	}
+ }
+@@ -125,14 +125,14 @@ extern void setprogname(argv)
+ /*
+  * Do run-time initialization
+  */
+-extern int init(argc, argv, envp)
++int init(argc, argv, envp)
+ 	/*ARGSUSED*/
+ 	int argc;
+ 	char **argv;
+ 	char **envp;
+ {
+-	register int i;
+-	register char *cp;
++	int i;
++	char *cp;
+ 
+ 	if (!isserver)
+ 		(void) signal(SIGSEGV, sighandler);
+@@ -182,7 +182,7 @@ extern int init(argc, argv, envp)
+ /*
+  * Finish things up before ending.
+  */
+-extern void finish()
++void finish()
+ {
+ 	extern jmp_buf finish_jmpbuf;
+ 
+@@ -216,7 +216,7 @@ extern void finish()
+ /*
+  * Handle lost connections
+  */
+-extern void lostconn()
++void lostconn()
+ {
+ 	/* Prevent looping */
+ 	(void) signal(SIGPIPE, SIG_IGN);
+@@ -232,7 +232,7 @@ extern void lostconn()
+ /*
+  * Do a core dump
+  */
+-extern void coredump()
++void coredump()
+ {
+ 	error("Segmentation violation - dumping core [PID = %d, %s]",
+ 	      getpid(), 
+@@ -245,7 +245,7 @@ extern void coredump()
+ /*
+  * General signal handler
+  */
+-extern void sighandler(sig)
++void sighandler(sig)
+ 	int sig;
+ {
+ 	debugmsg(DM_CALL, "sighandler() received signal %d\n", sig);
+@@ -325,7 +325,7 @@ static int sendcmdmsg(cmd, msg)
+ /*
+  * Stdarg frontend to sendcmdmsg()
+  */
+-extern int sendcmd(char cmd, char *fmt, ...)
++int sendcmd(char cmd, char *fmt, ...)
+ {
+ 	static char buf[BUFSIZ];
+ 	va_list args;
+@@ -345,7 +345,7 @@ extern int sendcmd(char cmd, char *fmt, 
+ /*
+  * Varargs frontend to sendcmdmsg()
+  */
+-extern int sendcmd(va_alist)
++int sendcmd(va_alist)
+ 	va_dcl
+ {
+ 	static char buf[BUFSIZ];
+@@ -372,7 +372,7 @@ extern int sendcmd(va_alist)
+  * Stupid frontend to sendcmdmsg()
+  */
+ /*VARARGS2*/
+-extern int sendcmd(cmd, fmt, a1, a2, a3, a4, a5, a6, a7, a8)
++int sendcmd(cmd, fmt, a1, a2, a3, a4, a5, a6, a7, a8)
+ 	char cmd;
+ 	char *fmt;
+ {
+@@ -433,13 +433,13 @@ static int remmore()
+  * errors, call cleanup() or lostconn().  In other words, unless
+  * the third argument is nonzero, this routine never returns failure.
+  */
+-extern int remline(buffer, space, doclean)
+-	register u_char *buffer;
++int remline(buffer, space, doclean)
++	u_char *buffer;
+ 	int space;
+ 	int doclean;
+ {
+-	register int c, left = space;
+-	register u_char *p = buffer;
++	int c, left = space;
++	u_char *p = buffer;
+ 
+ 	if (rem_r < 0) {
+ 		error("Cannot read remote input: Remote descriptor not open.");
+@@ -494,9 +494,9 @@ extern int remline(buffer, space, doclea
+ /*
+  * Non-line-oriented remote read.
+  */
+-readrem(p, space)
++int readrem(p, space)
+ 	char *p;
+-	register int space;
++	int space;
+ {
+ 	if (remleft <= 0) {
+ 		/*
+@@ -527,7 +527,7 @@ readrem(p, space)
+ /*
+  * Get the user name for the uid.
+  */
+-extern char *getusername(uid, file, opts)
++char *getusername(uid, file, opts)
+ 	UID_T uid;
+ 	char *file;
+ 	opt_t opts;
+@@ -566,7 +566,7 @@ extern char *getusername(uid, file, opts
+ /*
+  * Get the group name for the gid.
+  */
+-extern char *getgroupname(gid, file, opts)
++char *getgroupname(gid, file, opts)
+ 	GID_T gid;
+ 	char *file;
+ 	opt_t opts;
+@@ -604,7 +604,7 @@ extern char *getgroupname(gid, file, opt
+ /*
+  * Read a response from the remote host.
+  */
+-extern int response()
++int response()
+ {
+ 	static u_char resp[BUFSIZ];
+ 	u_char *s;
+@@ -646,6 +646,7 @@ extern int response()
+ 			message(MT_FERROR, "%s", s);
+ 		finish();
+ 	}
++	return -1;
+ 	/*NOTREACHED*/
+ }
+ 
+@@ -657,11 +658,11 @@ extern int response()
+  * user's home directory path name. Return a pointer in buf to the
+  * part corresponding to `file'.
+  */
+-extern char *exptilde(ebuf, file)
++char *exptilde(ebuf, file)
+ 	char *ebuf;
+-	register char *file;
++	char *file;
+ {
+-	register char *s1, *s2, *s3;
++	char *s1, *s2, *s3;
+ 	extern char *homedir;
+ 
+ 	if (*file != '~') {
+@@ -694,12 +695,12 @@ extern char *exptilde(ebuf, file)
+ 			*s3 = '/';
+ 		s2 = pw->pw_dir;
+ 	}
+-	for (s1 = ebuf; *s1++ = *s2++; )
++	for (s1 = ebuf; (*s1++ = *s2++); )
+ 		;
+ 	s2 = --s1;
+ 	if (s3 != NULL) {
+ 		s2++;
+-		while (*s1++ = *s3++)
++		while ((*s1++ = *s3++))
+ 			;
+ 	}
+ 	return(s2);
+@@ -710,7 +711,7 @@ extern char *exptilde(ebuf, file)
+  * Set our effective user id to the user running us.
+  * This should be the uid we do most of our work as.
+  */
+-extern int becomeuser()
++int becomeuser()
+ {
+ 	int r = 0;
+ 
+@@ -732,7 +733,7 @@ extern int becomeuser()
+ /*
+  * Set our effective user id to "root" (uid = 0)
+  */
+-extern int becomeroot()
++int becomeroot()
+ {
+ 	int r = 0;
+ 
+@@ -753,7 +754,7 @@ extern int becomeroot()
+ /*
+  * Set access and modify times of a given file
+  */
+-extern int setfiletime(file, atime, mtime)
++int setfiletime(file, atime, mtime)
+ 	char *file;
+ 	time_t atime;
+ 	time_t mtime;
+@@ -790,7 +791,7 @@ extern int setfiletime(file, atime, mtim
+ /*
+  * Get version info
+  */
+-extern char *getversion()
++char *getversion()
+ {
+ 	static char buff[BUFSIZ];
+ 
+@@ -811,7 +812,7 @@ void runcommand(cmd)
+ {
+ 	int fd[2], pid, i;
+ 	int status;
+-	register char *cp, *s;
++	char *cp, *s;
+ 	char sbuf[BUFSIZ], buf[BUFSIZ];
+ 
+ 	if (pipe(fd) < 0) {
+@@ -933,12 +934,12 @@ char *xcalloc(num, esize)
+ /*
+  * Private version of basename()
+  */
+-extern char *xbasename(path)
++char *xbasename(path)
+ 	char *path;
+ {
+-	register char *cp;
++	char *cp;
+  
+-	if (cp = strrchr(path, '/'))
++	if ((cp = strrchr(path, '/')))
+ 		return(cp+1);
+ 	else
+ 		return(path);
+@@ -949,11 +950,11 @@ extern char *xbasename(path)
+  * search until a component of that path is found and
+  * return the found file name.
+  */
+-extern char *searchpath(path)
++char *searchpath(path)
+ 	char *path;
+ {
+-	register char *cp;
+-	register char *file;
++	char *cp;
++	char *file;
+ 	struct stat statbuf;
+ 
+ 	for (; ;) {
+@@ -977,8 +978,7 @@ extern char *searchpath(path)
+ /*
+  * Set line buffering.
+  */
+-extern void
+-mysetlinebuf(fp)
++void mysetlinebuf(fp)
+ 	FILE *fp;
+ {
+ #if	SETBUF_TYPE == SETBUF_SETLINEBUF
+@@ -995,8 +995,7 @@ mysetlinebuf(fp)
+ /*
+  * Our interface to system call to get a socket pair.
+  */
+-int
+-getsocketpair(domain, type, protocol, sv)
++int getsocketpair(domain, type, protocol, sv)
+ 	int domain;
+ 	int type;
+ 	int protocol;
+--- a/src/message.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/message.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: message.c,v 6.25 1998/11/10 04:13:30 mcooper Exp $";
+ 
+@@ -97,7 +97,7 @@ MSGFACILITY msgfacility[] = {
+  */
+ extern void msgprusage()
+ {
+-	register int i, x;
++	int i, x;
+ 
+ 	(void) fprintf(stderr, "\nWhere <msgopt> is of form\n");
+ 	(void) fprintf(stderr, 
+@@ -120,7 +120,7 @@ extern void msgprusage()
+  */
+ extern void msgprconfig()
+ {
+-	register int i, x;
++	int i, x;
+ 	static char buf[MSGBUFSIZ];
+ 
+ 	debugmsg(DM_MISC, "Current message logging config:");
+@@ -145,7 +145,7 @@ extern void msgprconfig()
+ static MSGFACILITY *getmsgfac(name)
+ 	char *name;
+ {
+-	register int i;
++	int i;
+ 
+ 	for (i = 0; msgfacility[i].mf_name; ++i)
+ 		if (strcasecmp(name, msgfacility[i].mf_name) == 0)
+@@ -160,7 +160,7 @@ static MSGFACILITY *getmsgfac(name)
+ static MSGTYPE *getmsgtype(name)
+ 	char *name;
+ {
+-	register int i;
++	int i;
+ 
+ 	for (i = 0; msgtypes[i].mt_name; ++i)
+ 		if (strcasecmp(name, msgtypes[i].mt_name) == 0)
+@@ -178,9 +178,9 @@ static char *setmsgtypes(msgfac, str)
+ 	char *str;
+ {
+ 	static char ebuf[BUFSIZ];
+-	register char *cp;
+-	register char *strptr, *word;
+-	register MSGTYPE *mtp;
++	char *cp;
++	char *strptr, *word;
++	MSGTYPE *mtp;
+ 
+ 	/*
+ 	 * MF_SYSLOG is the only supported message facility for the server
+@@ -240,11 +240,11 @@ static char *setmsgtypes(msgfac, str)
+ 	msgfac->mf_msgtypes = 0;	/* Start from scratch */
+ 	while (strptr) {
+ 		word = strptr;
+-		if (cp = strchr(strptr, ','))
++		if ((cp = strchr(strptr, ',')))
+ 			*cp++ = CNULL;
+ 		strptr = cp;
+ 
+-		if (mtp = getmsgtype(word)) {
++		if ((mtp = getmsgtype(word))) {
+ 			msgfac->mf_msgtypes |= mtp->mt_type;
+ 			/*
+ 			 * XXX This is really a kludge until we add real
+@@ -272,8 +272,8 @@ extern char *msgparseopts(msgstr, doset)
+ 	int doset;
+ {
+ 	static char ebuf[BUFSIZ], msgbuf[MSGBUFSIZ];
+-	register char *cp, *optstr;
+-	register char *word;
++	char *cp, *optstr;
++	char *word;
+ 	MSGFACILITY *msgfac;
+ 
+ 	if (msgstr == NULL)
+@@ -308,7 +308,7 @@ extern char *msgparseopts(msgstr, doset)
+ 		if (doset) {
+ 			char *mcp;
+ 
+-			if (mcp = setmsgtypes(msgfac, cp))
++			if ((mcp = setmsgtypes(msgfac, cp)))
+ 				return(mcp);
+ 		}
+ 	}
+@@ -462,7 +462,7 @@ static void msgsendnotify(msgfac, mtype,
+ 		return;
+ 
+ 	if (!msgfac->mf_fptr) {
+-		register char *cp;
++		char *cp;
+ 		char *getenv();
+ 		int fd;
+ 
+@@ -519,15 +519,15 @@ static void _message(flags, msgbuf)
+ 	int flags;
+ 	char *msgbuf;
+ {
+-	register int i, x;
+-	register char *cp;
++	int i, x;
++	char *cp;
+ 	static char mbuf[2048];
+ 
+ 	if (msgbuf && *msgbuf) {
+ 		/*
+ 		 * Ensure no stray newlines are present
+ 		 */
+-		if (cp = strchr(msgbuf, '\n'))
++		if ((cp = strchr(msgbuf, '\n')))
+ 			*cp = CNULL;
+ 
+ 		checkhostname();
+@@ -867,7 +867,7 @@ extern void fatalerr(fmt, a1, a2, a3, a4
+  */
+ extern char *getnotifyfile()
+ {
+-	register int i;
++	int i;
+ 
+ 	for (i = 0; msgfacility[i].mf_name; i++)
+ 		if (msgfacility[i].mf_msgfac == MF_NOTIFY &&
+--- a/src/setargs.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/setargs.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: setargs.c,v 6.5 1998/11/10 04:15:56 mcooper Exp $";
+ 
+@@ -65,12 +65,12 @@ char 			       **UserEnviron;
+ /*
+  * Settup things for using setproctitle()
+  */
+-setargs_settup(argc, argv, envp)
++void setargs_settup(argc, argv, envp)
+ 	int			argc;
+ 	char		      **argv;
+ 	char		      **envp;
+ {
+-	register int 		i;
++	int 			i;
+ 	int			count;
+ 	extern char 	      **environ;
+ 
+@@ -95,10 +95,10 @@ setargs_settup(argc, argv, envp)
+ /*
+  * Set process title
+  */
+-extern void _setproctitle(msg)
++void _setproctitle(msg)
+         char *msg;
+ {
+-	register int i;
++	int i;
+ 	char *p;
+ 	
+ 	p = Argv[0];
+@@ -122,7 +122,7 @@ extern void _setproctitle(msg)
+ /*
+  * Varargs front-end to _setproctitle()
+  */
+-extern void setproctitle(va_alist)
++void setproctitle(va_alist)
+ 	va_dcl
+ {
+ 	static char buf[BUFSIZ];
+@@ -141,7 +141,7 @@ extern void setproctitle(va_alist)
+ /*
+  * Stdarg front-end to _setproctitle()
+  */
+-extern void setproctitle(char *fmt, ...)
++void setproctitle(char *fmt, ...)
+ {
+ 	static char buf[BUFSIZ];
+ 	va_list args;
+@@ -158,7 +158,7 @@ extern void setproctitle(char *fmt, ...)
+  * Non-Varargs front-end to _setproctitle()
+  */
+ /*VARARGS1*/
+-extern void setproctitle(fmt, a1, a2, a3, a4, a5, a6)
++void setproctitle(fmt, a1, a2, a3, a4, a5, a6)
+ 	char *fmt;
+ {
+ 	static char buf[BUFSIZ];
+--- a/src/rdistd.c	1998-11-10 15:14:06.000000000 +1100
++++ b/src/rdistd.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: rdistd.c,v 6.23 1998/11/10 04:14:06 mcooper Exp $";
+ 
+@@ -53,21 +53,12 @@ static char copyright[] =
+ 
+ #include "defs.h"
+ 
+-/*
+- * Print usage message
+- */
+-static void usage()
+-{
+-	fprintf(stderr, "usage: %s -S [ -DV ]\n", progname);
+-	exit(1);
+-}
+-
+ char	localmsglist[] = "syslog=ferror";
+ 
+ /*
+  * The Beginning
+  */
+-main(argc, argv, envp)
++int main(argc, argv, envp)
+ 	int argc;
+ 	char **argv;
+ 	char **envp;
+@@ -95,7 +86,8 @@ main(argc, argv, envp)
+ 		case '?':
+ 		default:
+ 			error("Bad command line option.");
+-			usage();
++			fprintf(stderr, "usage: %s -S [ -DV ]\n", progname);
++			exit(1);
+ 		}
+ 
+ 	if (!isserver) {
+@@ -108,7 +100,7 @@ main(argc, argv, envp)
+ 	rem_w = fileno(stdout);
+ 
+ 	/* Set logging */
+-	if (cp = msgparseopts(localmsglist, TRUE))
++	if ((cp = msgparseopts(localmsglist, TRUE)))
+ 		fatalerr("Bad message logging option (%s): %s", 
+ 			 localmsglist, cp);
+ 
+--- a/src/server.c	2009-07-03 14:18:33.000000000 +1000
++++ b/src/server.c	2009-07-03 14:54:53.000000000 +1000
+@@ -37,7 +37,7 @@
+  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+  * SUCH DAMAGE.
+  */
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: server.c,v 6.86 1998/11/10 04:15:31 mcooper Exp $";
+ 
+@@ -197,7 +197,7 @@ static int fchog(fd, file, owner, group,
+ 	static UID_T last_uid = (UID_T)-2;
+ 	static GID_T last_primegid;
+ 	extern char *locuser;
+-	register int i;
++	int i;
+ 	UID_T uid;
+ 	GID_T gid;
+ 	GID_T primegid = (GID_T)-2;
+@@ -252,7 +252,7 @@ static int fchog(fd, file, owner, group,
+ 	        /*
+ 		 * Invalid cached values so we need to do a new lookup.
+ 		 */
+-		if (gr = mygetgroup(group)) {
++		if ((gr = mygetgroup(group))) {
+ 			last_gid = gid = gr->gr_gid;
+ 			strcpy(last_group, gr->gr_name);
+ 		} else {
+@@ -325,7 +325,7 @@ static int removefile(statb)
+ {
+ 	DIR *d;
+ 	static DIRENTRY *dp;
+-	register char *cp;
++	char *cp;
+ 	struct stat stb;
+ 	char *optarget;
+ 	int len, failures = 0;
+@@ -362,7 +362,7 @@ static int removefile(statb)
+ 
+ 	optarget = ptarget;
+ 	len = ptarget - target;
+-	while (dp = readdir(d)) {
++	while ((dp = readdir(d))) {
+ 		if ((D_NAMLEN(dp) == 1 && dp->d_name[0] == '.') ||
+ 		    (D_NAMLEN(dp) == 2 && dp->d_name[0] == '.' &&
+ 		     dp->d_name[1] == '.'))
+@@ -376,7 +376,7 @@ static int removefile(statb)
+ 		ptarget = optarget;
+ 		*ptarget++ = '/';
+ 		cp = dp->d_name;;
+-		while (*ptarget++ = *cp++)
++		while ((*ptarget++ = *cp++))
+ 			;
+ 		ptarget--;
+ 		if (lstat(target, &stb) < 0) {
+@@ -414,10 +414,10 @@ removed:
+  * for extraneous files and remove them.
+  */
+ static void doclean(cp)
+-	register char *cp;
++	char *cp;
+ {
+ 	DIR *d;
+-	register DIRENTRY *dp;
++	DIRENTRY *dp;
+ 	struct stat stb;
+ 	char *optarget, *ep;
+ 	int len;
+@@ -436,7 +436,7 @@ static void doclean(cp)
+ 
+ 	optarget = ptarget;
+ 	len = ptarget - target;
+-	while (dp = readdir(d)) {
++	while ((dp = readdir(d))) {
+ 		if ((D_NAMLEN(dp) == 1 && dp->d_name[0] == '.') ||
+ 		    (D_NAMLEN(dp) == 2 && dp->d_name[0] == '.' &&
+ 		     dp->d_name[1] == '.'))
+@@ -450,7 +450,7 @@ static void doclean(cp)
+ 		ptarget = optarget;
+ 		*ptarget++ = '/';
+ 		cp = dp->d_name;;
+-		while (*ptarget++ = *cp++)
++		while ((*ptarget++ = *cp++))
+ 			;
+ 		ptarget--;
+ 		if (lstat(target, &stb) < 0) {
+@@ -481,7 +481,7 @@ static void doclean(cp)
+  * Frontend to doclean().
+  */
+ static void clean(cp)
+-	register char *cp;
++	char *cp;
+ {
+ 	doclean(cp);
+ 	(void) sendcmd(CC_END, NULL);
+@@ -509,7 +509,7 @@ static void dospecial(cmd)
+  */
+ static void docmdspecial()
+ {
+-	register char *cp;
++	char *cp;
+ 	char *cmd, *env = NULL;
+ 	int n;
+ 	int len;
+@@ -667,7 +667,7 @@ static int chkparent(name, opts)
+ 	char *name;
+ 	opt_t opts;
+ {
+-	register char *cp;
++	char *cp;
+ 	struct stat stb;
+ 	int r = -1;
+ 
+@@ -760,7 +760,7 @@ static void recvfile(new, opts, mode, ow
+ {
+ 	int f, wrerr, olderrno, lastwashole = 0, wassparse = 0;
+ 	off_t i;
+-	register char *cp;
++	char *cp;
+ 	char *savefile = NULL;
+ 	static struct stat statbuff;
+ 
+@@ -985,7 +985,7 @@ static void recvdir(opts, mode, owner, g
+ 	char *owner, *group;
+ {
+ 	static char lowner[100], lgroup[100];
+-	register char *cp;
++	char *cp;
+ 	struct stat stb;
+ 	int s;
+ 
+@@ -1042,7 +1042,7 @@ static void recvdir(opts, mode, owner, g
+ 
+ 				o = (owner[0] == ':') ? opts & DO_NUMCHKOWNER :
+ 					opts;
+-				if (cp = getusername(stb.st_uid, target, o))
++				if ((cp = getusername(stb.st_uid, target, o)))
+ 					if (strcmp(owner, cp))
+ 						(void) strcpy(lowner, cp);
+ 			}
+@@ -1051,7 +1051,7 @@ static void recvdir(opts, mode, owner, g
+ 
+ 				o = (group[0] == ':') ? opts & DO_NUMCHKGROUP :
+ 					opts;
+-				if (cp = getgroupname(stb.st_gid, target, o))
++				if ((cp = getgroupname(stb.st_gid, target, o)))
+ 					if (strcmp(group, cp))
+ 						(void) strcpy(lgroup, cp);
+ 			}
+@@ -1105,8 +1105,8 @@ static void recvdir(opts, mode, owner, g
+ 	if (s < 0) {
+ 		if (errno == ENOENT) {
+ 			if (mkdir(target, mode) == 0 ||
+-			    chkparent(target, opts) == 0 && 
+-			    mkdir(target, mode) == 0) {
++			    (chkparent(target, opts) == 0 && 
++			     mkdir(target, mode) == 0)) {
+ 				message(MT_NOTICE, "%s: mkdir", target);
+ 				(void) fchog(-1, target, owner, group, mode);
+ 				ack();
+@@ -1303,7 +1303,7 @@ static void hardlink(cmd)
+ static void setconfig(cmd)
+ 	char *cmd;
+ {
+-	register char *cp = cmd;
++	char *cp = cmd;
+ 	char *estr;
+ 
+ 	switch (*cp++) {
+@@ -1337,7 +1337,7 @@ static void setconfig(cmd)
+ 		break;
+ 
+ 	case SC_LOGGING:	/* Logging options */
+-		if (estr = msgparseopts(cp, TRUE)) {
++		if ((estr = msgparseopts(cp, TRUE))) {
+ 			fatalerr("Bad message option string (%s): %s", 
+ 				 cp, estr);
+ 			return;
+@@ -1454,7 +1454,7 @@ static void recvit(cmd, type)
+ 		sptarget[catname] = ptarget;
+ 		if (catname++) {
+ 			*ptarget++ = '/';
+-			while (*ptarget++ = *file++)
++			while ((*ptarget++ = *file++))
+ 			    ;
+ 			ptarget--;
+ 		}
+@@ -1579,8 +1579,8 @@ extern void cleanup()
+ extern void server()
+ {
+ 	static char cmdbuf[BUFSIZ];
+-	register char *cp;
+-	register int n;
++	char *cp;
++	int n;
+ 	extern jmp_buf finish_jmpbuf;
+ 
+ 	if (setjmp(finish_jmpbuf)) {
+--- a/src/filesys.c	1998-11-10 15:10:18.000000000 +1100
++++ b/src/filesys.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: filesys.c,v 6.25 1998/11/10 04:10:17 mcooper Exp $";
+ 
+@@ -72,7 +72,7 @@ char *find_file(pathname, statbuf, isval
+ 	static char last_pathname[MAXPATHLEN];
+ 	static char file[MAXPATHLEN + 3];
+ 	static struct stat filestat;
+-	register char *p;
++	char *p;
+ 
+ 	/*
+ 	 * Mark the statbuf as invalid to start with.
+@@ -125,7 +125,7 @@ char *find_file(pathname, statbuf, isval
+ 			 * Normally we want to change /dir1/dir2/file
+ 			 * into "/dir1/dir2/."
+ 			 */
+-			if (p = (char *) strrchr(file, '/')) {
++			if ((p = (char *) strrchr(file, '/'))) {
+ 				*++p = '.';
+ 				*++p = CNULL;
+ 			} else {
+@@ -183,7 +183,7 @@ mntent_t *findmnt(filest, mntinfo)
+ 	struct stat *filest;
+ 	struct mntinfo *mntinfo;
+ {
+-	register struct mntinfo *mi;
++	struct mntinfo *mi;
+ 
+ 	for (mi = mntinfo; mi; mi = mi->mi_nxt) {
+ 		if (mi->mi_mnt->me_flags & MEFLAG_IGNORE)
+@@ -202,7 +202,7 @@ int isdupmnt(mnt, mntinfo)
+ 	mntent_t *mnt;
+ 	struct mntinfo *mntinfo;
+ {
+-	register struct mntinfo *m;
++	struct mntinfo *m;
+ 
+ 	for (m = mntinfo; m; m = m->mi_nxt)
+ 		if (strcmp(m->mi_mnt->me_path, mnt->me_path) == 0)
+@@ -247,7 +247,7 @@ struct mntinfo *makemntinfo(mi) 
+ 	}
+ 
+ 	mntinfo = mi;
+-	while (mnt = getmountent(mfp)) {
++	while ((mnt = getmountent(mfp))) {
+ 		debugmsg(DM_MISC, "mountent = '%s' (%s)", 
+ 			 mnt->me_path, mnt->me_type);
+ 
+@@ -308,7 +308,7 @@ mntent_t *getmntpt(pathname, statbuf, is
+ 	static struct stat filestat;
+ 	struct stat *pstat;
+ 	struct mntinfo *tmpmi;
+-	register mntent_t *mnt;
++	mntent_t *mnt;
+ 
+ 	/*
+ 	 * Use the supplied stat buffer if not NULL or our own.
+@@ -330,16 +330,16 @@ mntent_t *getmntpt(pathname, statbuf, is
+ 	/*
+ 	 * Find the mnt that pathname is on.
+ 	 */
+-	if (mnt = findmnt(pstat, mntinfo))
++	if ((mnt = findmnt(pstat, mntinfo)))
+ 		return(mnt);
+ 
+ 	/*
+ 	 * We failed to find correct mnt, so maybe it's a newly
+ 	 * mounted filesystem.  We rebuild mntinfo and try again.
+ 	 */
+-	if (tmpmi = makemntinfo(mntinfo)) {
++	if ((tmpmi = makemntinfo(mntinfo))) {
+ 		mntinfo = tmpmi;
+-		if (mnt = findmnt(pstat, mntinfo))
++		if ((mnt = findmnt(pstat, mntinfo)))
+ 			return(mnt);
+ 	}
+ 
+--- a/src/filesys-os.c	1998-11-10 15:09:59.000000000 +1100
++++ b/src/filesys-os.c	2009-07-03 14:54:53.000000000 +1000
+@@ -38,7 +38,7 @@
+  * SUCH DAMAGE.
+  */
+ 
+-#ifndef lint
++#if 0
+ static char RCSid[] = 
+ "$Id: filesys-os.c,v 6.18 1998/11/10 04:09:58 mcooper Exp $";
+ 
+@@ -314,7 +314,7 @@ mntent_t *getmountent(fptr)
+ 
+ 	bzero((char *)&me, sizeof(mntent_t));
+ 
+-	if (mntent = getmntent(fptr)) {
++	if ((mntent = getmntent(fptr))) {
+ 		me.me_path = mntent->mnt_dir;
+ 		me.me_type = mntent->mnt_type;
+ 		if (mntent->mnt_opts && hasmntopt(mntent, MNTOPT_RO))
+--- a/src/strcasecmp.c	1998-11-10 15:16:52.000000000 +1100
++++ b/src/strcasecmp.c	2009-07-03 14:54:53.000000000 +1000
+@@ -51,9 +51,9 @@ static char charmap[] = {
+ };
+ 
+ strcasecmp(s1, s2)
+-	register char *s1, *s2;
++	char *s1, *s2;
+ {
+-	register char *cm = charmap;
++	char *cm = charmap;
+ 
+ 	while (cm[*s1] == cm[*s2++])
+ 		if (*s1++ == '\0')
+@@ -62,10 +62,10 @@ strcasecmp(s1, s2)
+ }
+ 
+ strncasecmp(s1, s2, n)
+-	register char *s1, *s2;
+-	register int n;
++	char *s1, *s2;
++	int n;
+ {
+-	register char *cm = charmap;
++	char *cm = charmap;
+ 
+ 	while (--n >= 0 && cm[*s1] == cm[*s2++])
+ 		if (*s1++ == '\0')
+--- a/src/strtol.c	1994-03-17 09:25:50.000000000 +1000
++++ b/src/strtol.c	2009-07-03 14:54:53.000000000 +1000
+@@ -54,13 +54,13 @@ long
+ strtol(nptr, endptr, base)
+ 	char *nptr;
+ 	char **endptr;
+-	register int base;
++	int base;
+ {
+-	register char *s = nptr;
+-	register unsigned long acc;
+-	register int c;
+-	register unsigned long cutoff;
+-	register int neg = 0, any, cutlim;
++	char *s = nptr;
++	unsigned long acc;
++	int c;
++	unsigned long cutoff;
++	int neg = 0, any, cutlim;
+ 
+ 	/*
+ 	 * Skip white space and pick up leading +/- sign if any.
+--- a/src/regex.c	1998-11-10 15:14:28.000000000 +1100
++++ b/src/regex.c	2009-07-03 14:54:53.000000000 +1000
+@@ -142,10 +142,8 @@ static	int	advance();
+  */
+ char *
+ re_comp(sp)
+-	register char	*sp;
+ {
+-	register int	c;
+-	register char	*ep = expbuf;
++	char	*ep = expbuf;
+ 	int	cclcnt, numbra = 0;
+ 	char	*lastep = 0;
+ 	char	bracket[NBRA];
+@@ -266,10 +264,10 @@ re_comp(sp)
+  */
+ int
+ re_exec(p1)
+-	register char	*p1;
++	char	*p1;
+ {
+-	register char	*p2 = expbuf;
+-	register int	c;
++	char	*p2 = expbuf;
++	int	c;
+ 	int	rv;
+ 
+ 	for (c = 0; c < NBRA; c++) {
+@@ -306,9 +304,9 @@ re_exec(p1)
+  */
+ static	int
+ advance(lp, ep)
+-	register char	*lp, *ep;
++	char	*lp, *ep;
+ {
+-	register char	*curlp;
++	char	*curlp;
+ 	int	ct, i;
+ 	int	rv;
+ 
+@@ -413,10 +411,10 @@ advance(lp, ep)
+ }
+ 
+ backref(i, lp)
+-	register int	i;
+-	register char	*lp;
++	int	i;
++	char	*lp;
+ {
+-	register char	*bp;
++	char	*bp;
+ 
+ 	bp = braslist[i];
+ 	while (*bp++ == *lp++)
+@@ -427,10 +425,10 @@ backref(i, lp)
+ 
+ int
+ cclass(set, c, af)
+-	register char	*set, c;
++	char	*set, c;
+ 	int	af;
+ {
+-	register int	n;
++	int	n;
+ 
+ 	if (c == 0)
+ 		return(0);
+--- a/include/defs.h	2009-07-03 14:18:33.000000000 +1000
++++ b/include/defs.h	2009-07-03 14:54:53.000000000 +1000
+@@ -34,8 +34,9 @@
+ #include <sys/types.h>
+ #include <sys/param.h>
+ #include <sys/file.h>
+-#include <sys/time.h>
+ #include <sys/stat.h>
++#include <sys/wait.h>
++#include <sys/socket.h>
+ 
+ #include "version.h"
+ #include "config-def.h"
+@@ -49,6 +50,9 @@
+ #endif	/* yacc */
+ 
+ #include <signal.h>
++#define _REGEX_RE_COMP
++#include <regex.h>
++
+ 
+ /*
+  * This belongs in os-svr4.h but many SVR4 OS's
+@@ -338,12 +342,11 @@ char 			       *strtok();
+ /*
+  * Our own declarations.
+  */
+-char			       *exptilde();
+ char			       *makestr();
+ char	       		       *xcalloc();
+ char	       		       *xmalloc();
+ char	       		       *xrealloc();
+-extern char		       *xbasename();
++extern char		       *exptilde();
+ extern char		       *getdistoptlist();
+ extern char		       *getgroupname();
+ extern char		       *getnlstr();
+@@ -353,44 +356,75 @@ extern char		       *getusername();
+ extern char		       *getversion();
+ extern char		       *msgparseopts();
+ extern char		       *searchpath();
++extern char		       *xbasename();
++extern int			amatch();
+ extern int			any();
++extern int			becomeroot();
++extern int			becomeuser();
++extern int			except();
++extern int			execbrc();
++extern int			getfilesysinfo();
++extern int			getsocketpair();
+ extern int			init();
+ extern int			install();
+ extern int			isexec();
++extern int			is_nfs_mounted();
++extern int			is_ro_mounted();
++extern int			is_symlinked();
++extern int			match();
++extern int			okname();
+ extern int			parsedistopts();
++extern int			readrem();
+ extern int			remline();
++extern int			response();
++extern int			rshrcmd();
+ extern int			setfiletime();
++extern int			setnonblocking();
+ extern int			spawn();
++extern int			yylex();
++extern int			yyparse();
+ extern struct subcmd 	       *makesubcmd();
++extern void			append();
+ extern void			checkhostname();
+ extern void			cleanup();
+ extern void			complain();
++extern void			coredump();
++extern void			define();
++extern void			docmdargs();
+ extern void			docmds();
+ extern void			finish();
+-extern void			log();
++extern void			freelinkinfo();
++extern void			insert();
+ extern void			logmsg();
+ extern void			lostconn();
+ extern void			markassigned();
++extern void			msgprconfig();
+ extern void			msgprusage();
++extern void			mysetlinebuf();
+ extern void			note();
+ extern void			runcmdspecial();
+ extern void			runcommand();
+ extern void			server();
++extern void			setargs_settup();
+ extern void			setprogname();
+ extern void			sighandler();
++extern void			usage();
+ extern void			waitup();
++extern void			yyerror();
++extern WRITE_RETURN_T		xwrite();
+ struct namelist		       *expand();
+ struct namelist		       *lookup();
+ struct namelist		       *makenl();
+-extern WRITE_RETURN_T		xwrite();
+ 
+ #if	defined(ARG_TYPE) && ARG_TYPE == ARG_STDARG
++extern int			sendcmd(char cmd, char *fmt, ...);
+ extern void			debugmsg(int, char *, ...);
+ extern void			error(char *, ...);
+ extern void			fatalerr(char *, ...);
+ extern void			message(int, char *, ...);
+ extern void			setproctitle(char *fmt, ...);
+ #else
++extern int			sendcmd(va_alist);
+ extern void			debugmsg();
+ extern void			error();
+ extern void			fatalerr();

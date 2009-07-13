@@ -1,0 +1,42 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=58264
+
+Herbert Xu <herbert@debian.org>
+
+Pass on the full environment rather than the first 40 variables
+
+Not all my environment variables are passed by rdist to the transport
+program (specified by the -P option).  Only the first 40 variables are
+passed.  This causes complete failure when one of the variables not
+passed is SSH_AUTH_SOCK.
+
+--- a/src/setargs.c	1998-11-10 15:15:56.000000000 +1100
++++ b/src/setargs.c	2009-07-02 20:05:46.000000000 +1000
+@@ -58,10 +58,9 @@ static char copyright[] =
+  * Set process argument functions
+  */
+ 
+-#define MAXUSERENVIRON 		40
+ char 			      **Argv = NULL;
+ char 			       *LastArgv = NULL;
+-char 			       *UserEnviron[MAXUSERENVIRON+1];
++char 			       **UserEnviron;
+ 
+ /*
+  * Settup things for using setproctitle()
+@@ -72,11 +71,15 @@ setargs_settup(argc, argv, envp)
+ 	char		      **envp;
+ {
+ 	register int 		i;
++	int			count;
+ 	extern char 	      **environ;
+ 
+   	/* Remember the User Environment */
+ 
+-	for (i = 0; i < MAXUSERENVIRON && envp[i] != NULL; i++)
++	for (count = 0; envp[count] != NULL; count++)
++		;
++	UserEnviron = (char **)xmalloc(sizeof(char *) * (count + 1));
++	for (i = 0; i < count; i++)
+ 		UserEnviron[i] = strdup(envp[i]);
+ 	UserEnviron[i] = NULL;
+ 	environ = UserEnviron;

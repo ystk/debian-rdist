@@ -1,0 +1,130 @@
+rdist (6.1.5-16) unstable; urgency=low
+
+  * Upload to unstable 
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Mon, 13 Jul 2009 21:34:48 +1000
+
+rdist (6.1.5-15) experimental; urgency=low
+
+  * Apply the following patches from Fedora:
+    11-fedora-links.patch
+    12-fedora-hardlink.patch
+    13-fedora-lfs.patch (closes: 515220)
+    14-fedora-cleanup.patch
+    15-fedora-svr4.patch
+    16-fedora-ssh.patch
+    18-fedora-stat64.patch
+    19-fedora-fix-msgsndnotify-loop.patch
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Fri, 03 Jul 2009 11:51:02 +1000
+
+rdist (6.1.5-14) unstable; urgency=low
+
+  * DH compatibility level is 7
+  * Fix out-of-date-standards-version
+  * Fix description-contains-homepage
+  * Fix dh-clean-k-is-deprecated
+  * Depends on ${misc:Depends}
+  * Build-Depends on quilt
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Thu, 02 Jul 2009 12:02:55 +1000
+
+rdist (6.1.5-13) unstable; urgency=low
+
+  * Fixed "FTBFS on GNU/kFreeBSD: missing OS detection", closes: #415149.
+    Patch by Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>.
+  * Fixed the following lintian messages:
+    - W: rdist source: debian-rules-sets-DH_COMPAT line 10
+    - W: rdist source: debian-rules-ignores-make-clean-error line 25
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sat, 25 Aug 2007 13:27:29 +1000
+
+rdist (6.1.5-12) unstable; urgency=low
+
+  * Set Standards-Version to 3.7.2.
+  * Set DH_COMPAT to 5.
+  * Fixed "nodescend option unexpected behaviour", closes: #367409.
+    Patch by Kornilios Kourtis <kkourt@cslab.ece.ntua.gr>.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Thu, 22 Jun 2006 17:14:52 +1000
+
+rdist (6.1.5-11) unstable; urgency=low
+
+  * Set Standards-Version to 3.6.2.
+  * Set DH_COMPAT to 3.
+  * Added Homepage to description.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Sat, 29 Oct 2005 14:06:29 +1000
+
+rdist (6.1.5-10) unstable; urgency=low
+
+  * New maintainer's email address.
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Mon, 07 Feb 2005 23:56:55 +1100
+
+rdist (6.1.5-9) unstable; urgency=low
+
+  * Rdisting a symlink doesn't quite work (closes: #250965).
+    Applied patch from Herbert Xu <herbert@gondor.apana.org.au>.
+  * Changed doc/{Makefile.real,rdistd.man} and debian/rdist.dirs to
+    fix lintian warning:
+    W: rdist: no-manpage-in-correct-directory usr/bin/rdistd (8)
+
+ -- Anibal Monsalve Salazar <A.Monsalve.Salazar@IEEE.org>  Fri, 25 Jun 2004 13:00:36 +1000
+
+rdist (6.1.5-8) unstable; urgency=low
+
+  * New maintainer.
+
+ -- Anibal Monsalve Salazar <A.Monsalve.Salazar@IEEE.org>  Thu, 20 May 2004 10:10:52 +1000
+
+rdist (6.1.5-7) unstable; urgency=low
+
+  * Fixed gram.y so that it builds with bison (Akim Demaille).
+  * Use bison again.
+  * Use stdarg.h on Linux (closes: #195166).
+
+ -- Herbert Xu <herbert@debian.org>  Thu, 29 May 2003 19:04:51 +1000
+
+rdist (6.1.5-6) unstable; urgency=low
+
+  * Use byacc instead of bison (closes: #166299).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 25 Oct 2002 19:36:53 +1000
+
+rdist (6.1.5-5) unstable; urgency=low
+
+  * Errors in subdirs now propagate to the top (closes: #126516).
+  * Added missing header file inclusions (John Daily, #126527).
+
+ -- Herbert Xu <herbert@debian.org>  Fri, 28 Dec 2001 20:33:55 +1100
+
+rdist (6.1.5-4) unstable; urgency=low
+
+  * Added build-time dependency on bison (closes: #105389).
+
+ -- Herbert Xu <herbert@debian.org>  Mon, 16 Jul 2001 07:28:40 +1000
+
+rdist (6.1.5-3) unstable; urgency=low
+
+  * Set _PATH_OLDRDIST to /usr/bin/oldrdist in preparation for the rdist
+    package from BSD.
+
+ -- Herbert Xu <herbert@debian.org>  Wed, 24 Jan 2001 20:56:16 +1100
+
+rdist (6.1.5-2) unstable; urgency=low
+
+  * Pass on the full environment rather than the first 40 variables
+    (closes: #58264).
+
+ -- Herbert Xu <herbert@debian.org>  Thu,  1 Jun 2000 15:34:05 +1000
+
+rdist (6.1.5-1) unstable; urgency=low
+
+  * Initial release.
+  * rdist now supports ssh (closes: #43211).
+  * Applied patch from Gary L. Hennigan to recognise ELF binaries on Linux
+    (closes: #24165).
+
+ -- Herbert Xu <herbert@debian.org>  Sun, 31 Oct 1999 10:47:35 +1100
+

@@ -1,0 +1,59 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=126527
+
+Missing prototypes impact ia64
+
+Unprototyped functions are presumed by the C compiler to return
+integers; pointers on ia64 are frequently truncated and corrupted
+due to a lack of prototypes.
+
+ctime, strerror, and strtol all return 64-bit values, and are
+handled properly via the included patch.
+
+John R.Daily <jdaily@progeny.com>
+
+--- a/include/defs.h	1998-11-10 15:23:54.000000000 +1100
++++ b/include/defs.h	2009-07-02 20:05:46.000000000 +1000
+@@ -19,8 +19,8 @@
+  */
+ #if	defined(_POSIX_SOURCE)
+ #include <unistd.h>
+-#include <stdlib.h>
+ #endif	/* _POSIX_SOURCE */
++#include <stdlib.h>
+ #include <stdio.h>
+ #include <ctype.h>
+ #include <errno.h>
+@@ -28,6 +28,7 @@
+ #include <grp.h>
+ #include <syslog.h>
+ #include <setjmp.h>
++#include <time.h>
+ #include <sys/types.h>
+ #include <sys/param.h>
+ #include <sys/file.h>
+@@ -73,6 +74,9 @@
+ #if	defined(NEED_STRING_H)
+ #include <string.h>
+ #endif	/* NEED_STRING_H */
++#if	defined(NEED_MNTENT_H)
++#include <mntent.h>
++#endif	/* NEED_MNTENT_H */
+ 
+ #if defined(ARG_TYPE)
+ #if	ARG_TYPE == ARG_STDARG
+@@ -319,11 +323,15 @@ extern int 		juststatdb;
+ /*
+  * System function declarations
+  */
++#ifndef NEED_MNTENT_H
+ char 			       *hasmntopt();
++#endif
++#ifndef NEED_STRING_H
+ char			       *strchr();
+ char		 	       *strdup();
+ char		 	       *strrchr();
+ char 			       *strtok();
++#endif
+ 
+ /*
+  * Our own declarations.

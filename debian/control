@@ -1,0 +1,16 @@
+Source: rdist
+Section: net
+Priority: optional
+Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
+Standards-Version: 3.8.2
+Build-Depends: bison, debhelper (>= 7), quilt
+Homepage: http://www.magnicomp.com/rdist/
+
+Package: rdist
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: netstd
+Description: remote file distribution client and server
+ Rdist is a program to maintain identical copies of files over multiple hosts.
+ It preserves the owner, group, mode, and mtime of files if possible and can
+ update programs that are executing.

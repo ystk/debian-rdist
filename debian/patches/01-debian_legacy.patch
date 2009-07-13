@@ -1,0 +1,83 @@
+--- a/Makefile	1998-11-10 14:36:06.000000000 +1100
++++ b/Makefile	2009-07-02 20:05:46.000000000 +1000
+@@ -19,14 +19,14 @@ SHELL=/bin/sh
+ all install install.man: FRC
+ 	@for t in $(TARGETS); do \
+ 		echo Making \"$@\" in \"$$t\"; \
+-		(cd $$t; ${MAKE} $@); \
++		(cd $$t; ${MAKE} $@) || exit; \
+ 	done
+ 
+ clean:
+ 	rm -f *~ a.out core \#*
+ 	@for t in $(TARGETS); do \
+ 		echo Making \"$@\" in \"$$t\"; \
+-		(cd $$t; ${MAKE} $@); \
++		(cd $$t; ${MAKE} $@) || exit; \
+ 	done
+ 
+ FRC:
+--- a/Makefile.local	1998-11-10 14:36:31.000000000 +1100
++++ b/Makefile.local	2009-07-02 20:05:46.000000000 +1000
+@@ -56,3 +56,18 @@ LIBS_LOCAL	=
+ #MAN_OWNER	= bin
+ #MAN_GROUP	= bin
+ #MAN_MODE	= 644
++
++BIN_DIR = ${BASEDIR}/usr/bin
++MAN_1_DIR = ${BASEDIR}/usr/share/man/man1
++MAN_8_DIR = ${BASEDIR}/usr/share/man/man8
++RDIST_MODE = 755
++RDISTD_MODE = 755
++MAN_MODE = 644
++MAN_OWNER = root
++MAN_GROUP = root
++BIN_GROUP = root
++
++INSTALL = install
++YACC = bison -y
++
++OPT = -g -O2
+--- a/doc/Makefile.real	1998-11-10 16:40:06.000000000 +1100
++++ b/doc/Makefile.real	2009-07-02 20:05:46.000000000 +1000
+@@ -9,7 +9,8 @@
+ #
+ 
+ CLIENT_DEST 	= ${MAN_1_DIR}/${CLIENT}.${MAN_1_SECT}
+-SERVER_DEST 	= ${MAN_8_DIR}/${SERVER}.${MAN_8_SECT}
++#SERVER_DEST 	= ${MAN_8_DIR}/${SERVER}.${MAN_8_SECT}
++SERVER_DEST 	= ${MAN_1_DIR}/${SERVER}.${MAN_1_SECT}
+ INSTALL_ARGS	= -c -o ${MAN_OWNER} -g ${MAN_GROUP} -m ${MAN_MODE} 
+ 
+ all:
+--- a/doc/rdistd.man	1998-11-10 16:39:35.000000000 +1100
++++ b/doc/rdistd.man	2009-07-02 20:05:46.000000000 +1000
+@@ -7,7 +7,7 @@
+ .\"
+ .\"	$Id: rdistd.man,v 6.3 1998/11/10 05:39:35 mcooper Exp $
+ .\"
+-.TH RDISTD 8 "June 21, 1992"
++.TH RDISTD 1 "June 21, 1992"
+ .UC 6
+ .SH NAME
+ rdistd \- remote file distribution server program
+--- a/doc/rdist.man	1998-11-10 16:38:53.000000000 +1100
++++ b/doc/rdist.man	2009-07-02 20:05:46.000000000 +1000
+@@ -511,7 +511,7 @@ The
+ may be a colon seperated list of possible pathnames.
+ In this case, the first component of the path to exist is used.
+ i.e. 
+-.B "/usr/ucb/rsh:/usr/bin/remsh",
++.B "/usr/bin/rsh:/usr/bin/remsh",
+ .B /usr/bsd/rsh.
+ .TP
+ .B "\-t \fItimeout\fR"
+@@ -848,7 +848,7 @@ ${FILES} -> ${HOSTS}
+ 	install -oremove,chknfs ;
+ 	except /usr/lib/${EXLIB} ;
+ 	except /usr/games/lib ;
+-	special /usr/lib/sendmail "/usr/lib/sendmail -bz" ;
++	special /usr/sbin/sendmail "/usr/sbin/sendmail -bz" ;
+ 
+ srcs:
+ /usr/src/bin -> arpa

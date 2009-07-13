@@ -1,0 +1,15 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=415149
+
+Cyril Brulebois <cyril.brulebois@enst-bretagne.fr>
+
+--- a/build/os-type	1998-11-10 14:37:27.000000000 +1100
++++ b/build/os-type	2009-07-02 20:05:46.000000000 +1000
+@@ -111,6 +111,8 @@ if [ -z "${OS}" -a ! -z "${uname}" ]; th
+ 				OS="${osname}${osmajver}"
+ 				;;
+ 		"linux"*)	OS=linux;;
++		"k*bsd"*)	OS=linux;;
++		"gnu"*)		OS=linux;;
+ 		"freebsd"*)	OS="${osname}${osmajver}";;
+ 	  	# OpenBSD looks like freebsd2 right now
+ 		"openbsd"*)	OS="freebsd2";;

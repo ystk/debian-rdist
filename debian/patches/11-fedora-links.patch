@@ -1,0 +1,74 @@
+--- a/include/defs.h	2009-07-02 22:39:04.000000000 +1000
++++ b/include/defs.h	2009-07-03 11:49:46.000000000 +1000
+@@ -280,9 +280,9 @@ struct linkbuf {
+ 	ino_t	inum;
+ 	dev_t	devnum;
+ 	int	count;
+-	char	pathname[BUFSIZ];
+-	char	src[BUFSIZ];
+-	char	target[BUFSIZ];
++	char	*pathname;
++	char	*src;
++	char	*target;
+ 	struct	linkbuf *nextp;
+ };
+ 
+--- a/src/client.c	2009-07-02 22:39:05.000000000 +1000
++++ b/src/client.c	2009-07-03 11:49:46.000000000 +1000
+@@ -309,6 +309,18 @@ int checkfilename(name)
+ 	return(0);
+ }
+ 
++void freelinkinfo(lp)
++	struct linkbuf *lp;
++{
++	if (lp->pathname)
++		free(lp->pathname);
++	if (lp->src)
++		free(lp->src);
++	if (lp->target)
++		free(lp->target);
++	free(lp);
++}
++
+ /*
+  * Save and retrieve hard link info
+  */
+@@ -317,6 +329,7 @@ static struct linkbuf *linkinfo(statp)
+ {
+ 	struct linkbuf *lp;
+ 
++	/* xxx: linear search doesn't scale with many links */
+ 	for (lp = ihead; lp != NULL; lp = lp->nextp)
+ 		if (lp->inum == statp->st_ino && lp->devnum == statp->st_dev) {
+ 			lp->count--;
+@@ -329,12 +342,14 @@ static struct linkbuf *linkinfo(statp)
+ 	lp->inum = statp->st_ino;
+ 	lp->devnum = statp->st_dev;
+ 	lp->count = statp->st_nlink - 1;
+-	(void) strcpy(lp->pathname, target);
+-	(void) strcpy(lp->src, source);
++	lp->pathname = strdup(target);
++	lp->src = strdup(source);
+ 	if (Tdest)
+-		(void) strcpy(lp->target, Tdest);
++		lp->target = strdup(Tdest);
+ 	else
+-		*lp->target = CNULL;
++		lp->target = NULL;
++	if (!lp->pathname || !lp->src || !(Tdest && lp->target))
++		fatalerr("Cannot malloc memory in linkinfo.");
+ 
+ 	return((struct linkbuf *) NULL);
+ }
+--- a/src/docmd.c	1998-11-10 15:08:32.000000000 +1100
++++ b/src/docmd.c	2009-07-03 11:49:46.000000000 +1000
+@@ -586,7 +586,7 @@ done:
+ 	if (!nflag) {
+ 		register struct linkbuf *nextl, *l;
+ 
+-		for (l = ihead; l != NULL; free((char *)l), l = nextl) {
++		for (l = ihead; l != NULL; freelinkinfo(l), l = nextl) {
+ 			nextl = l->nextp;
+ 			if (contimedout || IS_ON(opts, DO_IGNLNKS) || 
+ 			    l->count == 0)

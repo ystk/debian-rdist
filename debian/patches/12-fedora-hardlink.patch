@@ -1,0 +1,20 @@
+--- a/src/client.c	2009-07-03 11:58:15.000000000 +1000
++++ b/src/client.c	2009-07-03 12:55:35.000000000 +1000
+@@ -348,7 +348,7 @@ static struct linkbuf *linkinfo(statp)
+ 		lp->target = strdup(Tdest);
+ 	else
+ 		lp->target = NULL;
+-	if (!lp->pathname || !lp->src || !(Tdest && lp->target))
++	if (!lp->pathname || !lp->src || (Tdest && !lp->target))
+ 		fatalerr("Cannot malloc memory in linkinfo.");
+ 
+ 	return((struct linkbuf *) NULL);
+@@ -370,7 +370,7 @@ static int sendhardlink(opts, lp, rname,
+ 	       "sendhardlink: rname='%s' pathname='%s' src='%s' target='%s'\n",
+ 		 rname, lp->pathname, lp->src, lp->target);
+ 		 
+-	if (*lp->target == CNULL)
++	if (lp->target == NULL || *lp->target == CNULL)
+ 		(void) sendcmd(C_RECVHARDLINK, "%o %s %s", 
+ 			       opts, lp->pathname, rname);
+ 	else {

@@ -1,0 +1,32 @@
+--- a/src/message.c	2009-07-03 15:18:51.000000000 +1000
++++ b/src/message.c	2009-07-03 15:21:42.000000000 +1000
+@@ -793,15 +793,20 @@ static void _fatalerr(msg)
+ 	char *msg;
+ {
+ 	static char buf[MSGBUFSIZ];
+-
+-	++nerrs;
+-
+-	if (isserver)
+-		(void) sprintf(buf, "REMOTE ERROR: %s", msg);
+-	else
+-		(void) sprintf(buf, "LOCAL ERROR: %s", msg);
+-
+-	_message(MT_FERROR, buf);
++	/* Don't reenter this function. There is a nasty infinite recursion
++	   case that pops up when msgsndnotify tries to exit. */
++	static int inside=0; 
++
++	if(inside==0){
++	        ++nerrs;
++		inside=1;
++
++	        if (isserver)
++		        (void) sprintf(buf, "REMOTE ERROR: %s", msg);
++	        else
++		        (void) sprintf(buf, "LOCAL ERROR: %s", msg);
++		_message(MT_FERROR, buf);
++	}
+ 
+ 	exit(nerrs);
+ }

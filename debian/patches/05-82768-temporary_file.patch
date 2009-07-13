@@ -1,0 +1,35 @@
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=82768
+
+Joey Hess <joey@valinux.com>
+
+As reported by immunix at
+<http://www.lwn.net/2001/0111/a/sec-immunix-tmprace.php3>, rdist uses an
+unsafe temporary file. This could be used to overwrite any file that the
+user running rdist can modify. Here is the patch Immunix wrote:
+
+--- a/src/message.c	1998-11-10 15:13:30.000000000 +1100
++++ b/src/message.c	2009-07-02 20:05:46.000000000 +1000
+@@ -464,6 +464,7 @@ static void msgsendnotify(msgfac, mtype,
+ 	if (!msgfac->mf_fptr) {
+ 		register char *cp;
+ 		char *getenv();
++		int fd;
+ 
+ 		/*
+ 		 * Create and open a new temporary file
+@@ -475,10 +476,13 @@ static void msgsendnotify(msgfac, mtype,
+ 		(void) sprintf(tempfile, "%s/%s", cp, _RDIST_TMP);
+ 
+ 		msgfac->mf_filename = tempfile;
+-		(void) mktemp(msgfac->mf_filename);
+-		if ((msgfac->mf_fptr = fopen(msgfac->mf_filename, "w"))==NULL)
++		fd = mkstemp(msgfac->mf_filename);
++		if (fd < 0 || (msgfac->mf_fptr = fdopen(fd, "w")) == NULL) {
++			if (fd >= 0)
++				close(fd);
+ 			fatalerr("Cannot open notify file for writing: %s: %s.",
+ 			      msgfac->mf_filename, SYSERR);
++		}
+ 		debugmsg(DM_MISC, "Created notify temp file '%s'",
+ 			 msgfac->mf_filename);
+ 	}

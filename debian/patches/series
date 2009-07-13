@@ -1,0 +1,17 @@
+01-debian_legacy.patch
+02-24165-recognise_ELF_binaries.patch
+04-58264-pass_on_the_full_environment.patch
+05-82768-temporary_file.patch
+06-126527-missing_prototypes.patch
+07-build_with_bison.patch
+08-250965-rdist_symlinks.patch
+09-367409-fix_nodescend_option_behaviour.patch
+10-415149-build_on_GNU_kFreeBSD.patch
+11-fedora-links.patch
+12-fedora-hardlink.patch
+13-fedora-lfs.patch
+14-fedora-cleanup.patch
+15-fedora-svr4.patch
+16-fedora-ssh.patch
+18-fedora-stat64.patch
+19-fedora-fix-msgsndnotify-loop.patch
