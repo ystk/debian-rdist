@@ -3,26 +3,24 @@
 # Copyright (c) 1999 Herbert Xu <herbert@debian.org>
 # Copyright (C) 2004-2009 Anibal Monsalve Salazar <anibal@debian.org>
 
-# Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
-include /usr/share/quilt/quilt.make
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/buildflags.mk
 
-build: patch build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
 build-stamp:
 	dh_testdir
-
-	DEFS_LOCAL=-D_PATH_OLDRDIST=\\\"/usr/bin/oldrdist\\\" $(MAKE)
-
+	DEFS_LOCAL=-D_PATH_OLDRDIST=\\\"/usr/bin/oldrdist\\\" LIB_SYS="$(LDFLAGS)" $(MAKE)
 	touch build-stamp
 
-clean: unpatch
+clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp install-stamp
-
 	[ ! -f Makefile ] || $(MAKE) clean
-
 	dh_clean
 
 install: build install-stamp
@@ -31,16 +29,11 @@ install-stamp:
 	dh_testroot
 	dh_prep
 	dh_installdirs
-
 	$(MAKE) BASEDIR=`pwd`/debian/rdist install install.man
-
 	touch install-stamp
 
-# Build architecture-independent files here.
 binary-indep: build install
-# We have nothing to do by default.
 
-# Build architecture-dependent files here.
 binary-arch: build install
 	dh_testdir
 	dh_testroot
@@ -48,7 +41,7 @@ binary-arch: build install
 	dh_installexamples
 	dh_installmenu
 	dh_installcron
-	dh_installmanpages
+	dh_installman
 	dh_installinfo
 	dh_installchangelogs ChangeLog
 	dh_link
@@ -59,7 +52,7 @@ binary-arch: build install
 	dh_shlibdeps
 	dh_gencontrol
 	dh_md5sums
-	dh_builddeb
+	dh_builddeb -- -Zbzip2 -z9
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install

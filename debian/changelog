@@ -1,3 +1,26 @@
+rdist (6.1.5-18) unstable; urgency=low
+
+  * Don't FTBFS with several LDFLAGS
+    Patch by Ilya Barygin
+    Closes: #677921
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Mon, 18 Jun 2012 13:51:14 +1000
+
+rdist (6.1.5-17) unstable; urgency=low
+
+  * Don't invoke /usr/ucb/oldrdist, but /usr/bin/oldrdist
+    Update 13-fedora-lfs.patch
+    Thanks to Nobuhiro Ban
+    Closes: #671441
+  * Standards-Version is 3.9.3
+  * DH compatibility is 9
+  * Debian source format is 3.0 (quilt)
+  * Use hardening options
+  * Fix dh_installmanpages-is-obsolete
+  * Fix debian-rules-missing-recommended-target
+
+ -- Anibal Monsalve Salazar <anibal@debian.org>  Fri, 01 Jun 2012 11:35:13 +1000
+
 rdist (6.1.5-16) unstable; urgency=low
 
   * Upload to unstable 

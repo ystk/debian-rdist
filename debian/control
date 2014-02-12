@@ -2,8 +2,8 @@ Source: rdist
 Section: net
 Priority: optional
 Maintainer: Anibal Monsalve Salazar <anibal@debian.org>
-Standards-Version: 3.8.2
-Build-Depends: bison, debhelper (>= 7), quilt
+Standards-Version: 3.9.3
+Build-Depends: dpkg-dev (>= 1.16.1~), debhelper (>= 9), bison
 Homepage: http://www.magnicomp.com/rdist/
 
 Package: rdist

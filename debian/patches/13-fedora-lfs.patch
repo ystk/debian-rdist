@@ -108,14 +108,14 @@
  #include <ctype.h>
  #include <errno.h>
  #include <pwd.h>
---- a/Makefile.local	2009-07-03 13:08:33.000000000 +1000
-+++ b/Makefile.local	2009-07-03 13:20:40.000000000 +1000
-@@ -20,7 +20,7 @@
- # Add any local definitions you want pass to the compiler to DEFS_LOCAL
- # below.  This includes those items found in "config/config.h".
+--- a/config/mf.linux	1998-11-10 12:53:01.000000000 +0900
++++ b/config/mf.linux	2012-04-27 00:00:00.000000000 +0900
+@@ -26,7 +26,7 @@
  #
--#DEFS_LOCAL	= -DDIRECT_RCMD
-+DEFS_LOCAL	= -O2 -g -pipe -Wall -D_POSIX_SOURCE -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+ # System dependent options for compiling
+ #
+-#CFLAGS_OS	=
++CFLAGS_OS	= -O2 -g -pipe -Wall -D_POSIX_SOURCE -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
  
- #
- # Add any local libraries that your system might need to LIBS_LOCAL below.
+ BIN_DIR		= /usr/bin
+ 
